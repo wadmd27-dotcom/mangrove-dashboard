@@ -1,3 +1,34 @@
+st.sidebar.header("Map Layers")
+
+selected_map = st.sidebar.selectbox(
+    "Choose a map to view",
+    [
+        "Mangrove Indicators",
+        "Possible Degradation Alerts",
+        "RGB Coastal Overview"
+    ]
+)
+
+if selected_map == "Mangrove Indicators":
+    st.image(
+        "images/image 4.png",
+        caption="Mangrove and ecosystem indicators",
+        use_container_width=True
+    )
+
+elif selected_map == "Possible Degradation Alerts":
+    st.image(
+        "images/possible_mangrove_degradation_alerts.png",
+        caption="Possible mangrove degradation hotspots",
+        use_container_width=True
+    )
+
+elif selected_map == "RGB Coastal Overview":
+    st.image(
+        "images/image 3.png",
+        caption="RGB coastal overview",
+        use_container_width=True
+    )
 import streamlit as st
 
 st.set_page_config(
