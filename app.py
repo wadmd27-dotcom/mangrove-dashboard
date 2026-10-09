@@ -24,7 +24,26 @@ with col1:
 with col2:
     st.subheader("RGB and Coastal Indicators")
     st.image("images/image 3.png", use_container_width=True)
+st.subheader("Possible Mangrove Degradation Alerts")
 
+st.image(
+    "images/possible_mangrove_degradation_alerts.png",
+    caption="Areas with a strong NDVI decrease between February 2024 and February 2025",
+    use_container_width=True
+)
+
+st.info(
+    "This map shows possible degradation hotspots. "
+    "The red areas require further validation or field inspection."
+)
+
+col1, col2 = st.columns(2)
+
+with col1:
+    st.metric("Possible decrease", "1.99%")
+
+with col2:
+    st.metric("Possible increase", "1.53%")
 st.header("Spectral Analysis")
 
 col3, col4 = st.columns(2)
