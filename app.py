@@ -5,8 +5,7 @@ selected_map = st.sidebar.selectbox(
     [
         "Mangrove Indicators",
         "Possible Degradation Alerts",
-        "RGB Coastal Overview"
-    ]
+        "RGB Coastal Overview"    ]
 )
 
 if selected_map == "Mangrove Indicators":
@@ -143,7 +142,7 @@ with open("images/gmw_uae_extent.geojson", "r") as file:
 interactive_map = folium.Map(
     location=[24.5, 54.5],
     zoom_start=6,
-    tiles="CartoDB positron"
+    tiles="OpenStreetMap"
 )
 
 folium.GeoJson(
