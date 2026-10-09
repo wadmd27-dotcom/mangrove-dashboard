@@ -103,3 +103,31 @@ st.info(
     "These maps are indicators, not confirmed measurements of carbon storage "
     "or mangrove health. Further validation with reference data is required."
 )
+import folium
+from streamlit_folium import st_folium
+
+st.subheader("Interactive GCC Map")
+
+gcc_map = folium.Map(
+    location=[25.5, 51.5],
+    zoom_start=5,
+    tiles="CartoDB positron"
+)
+
+folium.LatLngPopup().add_to(gcc_map)
+
+map_result = st_folium(
+    gcc_map,
+    width= "100%",
+    height=600
+)
+
+if map_result and map_result.get("last_clicked"):
+    clicked = map_result["last_clicked"]
+
+    st.success(
+        f"Selected location: "
+        f"{clicked['lat']:.4f}, {clicked['lng']:.4f}"
+    )
+else:
+    st.info("Click anywhere on the GCC map to select a location.")
