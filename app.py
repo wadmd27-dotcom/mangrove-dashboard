@@ -1,5 +1,5 @@
+import streamlit as st
 st.sidebar.header("Map Layers")
-
 selected_map = st.sidebar.selectbox(
     "Choose a map to view",
     [
@@ -29,7 +29,6 @@ elif selected_map == "RGB Coastal Overview":
         caption="RGB coastal overview",
         use_container_width=True
     )
-import streamlit as st
 
 st.set_page_config(
     page_title="Mangrove Health Dashboard",
