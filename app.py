@@ -131,3 +131,53 @@ if map_result and map_result.get("last_clicked"):
     )
 else:
     st.info("Click anywhere on the GCC map to select a location.")
+import json
+import folium
+from streamlit_folium import st_folium
+
+st.subheader("Interactive GMW Mangrove Map")
+
+with open("images/gmw_uae_extent.geojson", "r") as file:
+    gmw_data = json.load(file)
+
+interactive_map = folium.Map(
+    location=[24.5, 54.5],
+    zoom_start=6,
+    tiles="CartoDB positron"
+)
+
+folium.GeoJson(
+    gmw_data,
+    name="GMW Mangrove Extent",
+    style_function=lambda feature: {
+        "fillColor": "#16823B",
+        "color": "#0B5D2A",
+        "weight": 1,
+        "fillOpacity": 0.7
+    },
+    tooltip=folium.GeoJsonTooltip(
+        fields=["layer", "year", "class"],
+        aliases=["Layer", "Year", "Class"]
+    ),
+    popup=folium.GeoJsonPopup(
+        fields=["layer", "year", "class"],
+        aliases=["Layer", "Year", "Class"]
+    )
+).add_to(interactive_map)
+
+folium.LayerControl().add_to(interactive_map)
+folium.LatLngPopup().add_to(interactive_map)
+
+map_result = st_folium(
+    interactive_map,
+    width="100%",
+    height=650
+)
+
+if map_result and map_result.get("last_clicked"):
+    clicked = map_result["last_clicked"]
+
+    st.success(
+        f"Selected location: "
+        f"{clicked['lat']:.4f}, {clicked['lng']:.4f}"
+    )
