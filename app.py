@@ -27,8 +27,8 @@ GEOJSON_PATH = Path(
     "images/gcc_mangrove_analysis_points.geojson"
 )
 
-UAE_NDVI_PATH = Path(
-    "images/uae_ndvi_summary.json"
+UAE_INDICES_PATH = Path(
+    "images/uae_indices_summary.json"
 )
 
 
@@ -147,7 +147,7 @@ GCC_COUNTRY_BOUNDS = {
 
 
 # ---------------------------------------------------------
-# Data loading
+# Data loaders
 # ---------------------------------------------------------
 
 @st.cache_data
@@ -211,15 +211,19 @@ def load_mangrove_points():
 
 
 @st.cache_data
-def load_uae_ndvi_summary():
+def load_uae_indices_summary():
 
     with open(
-        UAE_NDVI_PATH,
+        UAE_INDICES_PATH,
         "r",
         encoding="utf-8"
     ) as file:
         return json.load(file)
 
+
+# ---------------------------------------------------------
+# Load data
+# ---------------------------------------------------------
 
 try:
     mangrove_points = load_mangrove_points()
@@ -231,12 +235,22 @@ except Exception as error:
 
 
 try:
-    uae_ndvi = load_uae_ndvi_summary()
+    uae_indices = load_uae_indices_summary()
 except Exception as error:
     st.error(
-        f"Could not load UAE NDVI summary: {error}"
+        f"Could not load UAE indices summary: {error}"
     )
     st.stop()
+
+
+ndvi_data = uae_indices.get(
+    "ndvi",
+    {}
+)
+
+ndwi_data = uae_indices.get(
+    "ndwi",
+    {})
 
 
 # ---------------------------------------------------------
@@ -299,7 +313,10 @@ st.sidebar.markdown(
 )
 
 st.sidebar.markdown(
-    "**Comparison:** 2024–2025"
+    "**Comparison:** "
+    f"{uae_indices.get('baseline_date', '2024')} "
+    "to "
+    f"{uae_indices.get('later_date', '2025')}"
 )
 
 
@@ -320,9 +337,9 @@ st.write(
 st.info(
     "POC scope: the map shows sampled GCC mangrove "
     "reference points derived from Global Mangrove Watch "
-    "2020. Health and change indicators are preliminary "
-    "and require multi-tile Sentinel-2 processing and "
-    "field validation for full GCC coverage."
+    "2020. NDVI and NDWI are preliminary scene-level "
+    "indicators and require spatial masking and field "
+    "validation before operational use."
 )
 
 
@@ -333,41 +350,46 @@ st.info(
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
+
     st.metric(
-        "UAE NDVI status",
-        uae_ndvi.get(
+        "NDVI status",
+        uae_indices.get(
             "status",
             "Preliminary"
         )
     )
 
 with col2:
+
     st.metric(
-        "UAE later median NDVI",
-        f"{uae_ndvi.get('later_median_ndvi', 0.0):.4f}"
+        "Later median NDVI",
+        f"{ndvi_data.get('later_median', 0.0):.4f}"
     )
 
 with col3:
+
     st.metric(
-        "Strong decrease",
-        f"{uae_ndvi.get('strong_decrease_percent', 0.0):.2f}%"
+        "NDVI scene change",
+        f"{ndvi_data.get('scene_level_change', 0.0):.4f}"
     )
 
 with col4:
+
     st.metric(
-        "Strong increase",
-        f"{uae_ndvi.get('strong_increase_percent', 0.0):.2f}%"
+        "NDWI scene change",
+        f"{ndwi_data.get('scene_level_change', 0.0):.4f}"
     )
 
-
-# ---------------------------------------------------------
-# Tabs
-# ---------------------------------------------------------
 
 st.markdown(
     "<br>",
     unsafe_allow_html=True
 )
+
+
+# ---------------------------------------------------------
+# Tabs
+# ---------------------------------------------------------
 
 tab1, tab2 = st.tabs(
     [
@@ -431,7 +453,6 @@ with tab1:
             else 5
         )
 
-        # OpenStreetMap requires no API key
         mangrove_map = folium.Map(
             location=[
                 average_latitude,
@@ -570,9 +591,25 @@ with tab1:
                     )
 
                     st.write(
+                        f"**Baseline date:** "
+                        f"{uae_indices.get('baseline_date', 'N/A')}"
+                    )
+
+                    st.write(
+                        f"**Later date:** "
+                        f"{uae_indices.get('later_date', 'N/A')}"
+                    )
+
+                    st.write(
+                        f"**Common tile:** "
+                        f"{uae_indices.get('common_tile', 'N/A')}"
+                    )
+
+                    st.write(
                         "**Confidence and uncertainty:** "
-                        "Preliminary reference point; "
-                        "multi-date validation required."
+                        "Preliminary scene-level indicator; "
+                        "spatial masking and field validation "
+                        "are required."
                     )
 
                     st.markdown(
@@ -580,11 +617,43 @@ with tab1:
                     )
 
                     st.write(
-                        "• **NDVI:** Preliminary UAE indicator"
+                        "• **NDVI:** "
+                        f"{ndvi_data.get('interpretation', 'Preliminary')}"
                     )
 
                     st.write(
-                        "• **NDWI:** Planned"
+                        f"• **NDVI baseline median:** "
+                        f"{ndvi_data.get('baseline_median', 0.0):.4f}"
+                    )
+
+                    st.write(
+                        f"• **NDVI later median:** "
+                        f"{ndvi_data.get('later_median', 0.0):.4f}"
+                    )
+
+                    st.write(
+                        f"• **NDVI change:** "
+                        f"{ndvi_data.get('scene_level_change', 0.0):.4f}"
+                    )
+
+                    st.write(
+                        "• **NDWI:** "
+                        f"{ndwi_data.get('interpretation', 'Preliminary')}"
+                    )
+
+                    st.write(
+                        f"• **NDWI baseline median:** "
+                        f"{ndwi_data.get('baseline_median', 0.0):.4f}"
+                    )
+
+                    st.write(
+                        f"• **NDWI later median:** "
+                        f"{ndwi_data.get('later_median', 0.0):.4f}"
+                    )
+
+                    st.write(
+                        f"• **NDWI change:** "
+                        f"{ndwi_data.get('scene_level_change', 0.0):.4f}"
                     )
 
                     st.write(
@@ -647,6 +716,11 @@ with tab1:
                     )
 
                     st.write(
+                        "• **Pixel-level change:** "
+                        "Not available for this scene pair"
+                    )
+
+                    st.write(
                         "• **Carbon, biodiversity and "
                         "coastal-protection value at risk:** "
                         "To be estimated"
@@ -703,14 +777,15 @@ with tab2:
         )
 
         st.info(
-            "Sentinel-2 comparisons provide a preliminary "
-            "view of vegetation-condition change."
+            "NDVI increased at the scene level between "
+            "the selected Sentinel-2 dates."
         )
 
         st.warning(
-            "NDWI, turbidity, fragmentation, hyperspectral "
-            "anomalies, and field verification are planned "
-            "for the next POC stage."
+            "NDWI decreased at the scene level. This may "
+            "reflect water, tidal, seasonal, atmospheric, "
+            "or surface-condition differences and requires "
+            "validation."
         )
 
     with insight_col2:
@@ -739,6 +814,10 @@ with tab2:
         st.write(
             "• POC reference points: "
             f"{len(mangrove_points)}"
+        )
+
+        st.write(
+            "• Pixel-level change available: No"
         )
 
 
