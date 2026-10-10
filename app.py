@@ -140,7 +140,7 @@ if mangrove_points:
             average_longitude
         ],
         zoom_start=5,
-        tiles="CartoDB positron",
+        tiles="OpenStreetMap",
         control_scale=True
     )
 
