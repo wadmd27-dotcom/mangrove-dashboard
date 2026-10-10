@@ -17,7 +17,9 @@ st.set_page_config(
 GEOJSON_PATH = Path(
     "images/gcc_mangrove_analysis_points.geojson"
 )
-
+UAE_NDVI_PATH = Path(
+    "images/uae_ndvi_summary.json"
+)
 
 @st.cache_data
 def load_mangrove_points():
@@ -46,7 +48,14 @@ def load_mangrove_points():
             })
 
     return points
-
+@st.cache_data
+def load_uae_ndvi_summary():
+    with open(
+        UAE_NDVI_PATH,
+        "r",
+        encoding="utf-8"
+    ) as file:
+        return json.load(file)
 
 try:
     mangrove_points = load_mangrove_points()
