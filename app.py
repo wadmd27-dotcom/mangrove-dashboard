@@ -13,20 +13,20 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- Custom CSS for Abu Dhabi Mangroves Background & Inspection UI ---
+# --- Custom CSS for Authentic Mangrove Forest Background & UI Styling ---
 st.markdown(
     """
     <style>
     .stApp {
-        background: linear-gradient(rgba(10, 30, 20, 0.85), rgba(15, 35, 25, 0.82)), 
-                    url('https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?auto=format&fit=crop&w=1920&q=80');
+        background: linear-gradient(rgba(10, 30, 20, 0.82), rgba(15, 35, 25, 0.78)), 
+                    url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1920&q=80');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
         background-color: #0a1e14;
     }
     
-    /* Enforce crisp green/white text contrast across all elements */
+    /* Enforce crisp green/white text contrast */
     h1, h2, h3, h4, h5, h6, p, span, label, div, .stMarkdown {
         color: #e2ede5 !important;
     }
