@@ -93,26 +93,26 @@ col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     st.metric(
-        "Mangrove health score",
-        "27.6 / 100"
+        "Health scoring",
+        "Preliminary"
     )
 
 with col2:
     st.metric(
-        "Median NDVI",
-        "0.0039"
+        "Reference locations",
+        "475 points"
     )
 
 with col3:
     st.metric(
-        "Possible decrease",
-        "0.37%"
+        "Analysis period",
+        "2024–2025"
     )
 
 with col4:
     st.metric(
-        "Stable area",
-        "99.63%"
+        "Data status",
+        "Reference map"
     )
 
 
