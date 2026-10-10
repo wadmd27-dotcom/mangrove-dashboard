@@ -202,8 +202,8 @@ if show_gmw and gmw_data is not None:
             sticky=True
         ),
         popup=folium.GeoJsonPopup(
-            fields=["layer", "year", "class"],
-            aliases=["Layer", "Year", "Class"]
+            fields=["region", "source"],
+            aliases=["Region", "Source"]
         )
     ).add_to(mangrove_map)
 
