@@ -35,12 +35,9 @@ def load_mangrove_points():
             geometry.get("type") == "Point"
             and len(coordinates) >= 2
         ):
-            longitude = float(coordinates[0])
-            latitude = float(coordinates[1])
-
             points.append({
-                "latitude": latitude,
-                "longitude": longitude,
+                "latitude": float(coordinates[1]),
+                "longitude": float(coordinates[0]),
                 "region": properties.get("region", "GCC"),
                 "source": properties.get(
                     "source",
@@ -59,6 +56,7 @@ except Exception as error:
 
 
 st.sidebar.title("🌿 Mangrove Stress Radar")
+
 st.sidebar.write(
     "Explore GCC mangrove locations and preliminary health indicators."
 )
@@ -66,6 +64,7 @@ st.sidebar.write(
 st.sidebar.divider()
 
 st.sidebar.subheader("Map layers")
+
 show_mangroves = st.sidebar.checkbox(
     "GCC mangrove points",
     value=True
@@ -74,11 +73,20 @@ show_mangroves = st.sidebar.checkbox(
 st.sidebar.divider()
 
 st.sidebar.subheader("Study information")
+
 st.sidebar.write("Region: GCC countries")
-st.sidebar.write("Countries: UAE, Saudi Arabia, Oman, Qatar, Bahrain and Kuwait")
-st.sidebar.write("Reference layer: Global Mangrove Watch")
-st.sidebar.write("Monitoring source: Sentinel-2")
-st.sidebar.write("Comparison: 2024–2025")
+st.sidebar.write(
+    "Countries: UAE, Saudi Arabia, Oman, Qatar, Bahrain and Kuwait"
+)
+st.sidebar.write(
+    "Reference layer: Global Mangrove Watch"
+)
+st.sidebar.write(
+    "Monitoring source: Sentinel-2"
+)
+st.sidebar.write(
+    "Comparison: 2024–2025"
+)
 
 
 st.title("Mangrove Stress Radar")
@@ -87,12 +95,14 @@ st.write(
     "Detect emerging mangrove stress before visible habitat loss, "
     "explain the possible signal, and support field verification."
 )
+
 st.info(
     "POC scope: the map shows 475 sampled GCC mangrove reference "
     "points derived from Global Mangrove Watch 2020. Health and "
     "change indicators are preliminary and require multi-tile "
     "Sentinel-2 processing and field validation for full GCC coverage."
 )
+
 
 col1, col2, col3, col4 = st.columns(4)
 
@@ -129,6 +139,7 @@ st.write(
 
 
 if mangrove_points:
+
     average_latitude = sum(
         point["latitude"]
         for point in mangrove_points
@@ -154,36 +165,39 @@ if mangrove_points:
     )
 
     if show_mangroves:
+
         for point in mangrove_points:
-           popup_text = (
-    f"<b>Region:</b> {point['region']}<br>"
-    f"<b>Source:</b> {point['source']}<br>"
-    f"<b>Latitude:</b> {point['latitude']:.5f}<br>"
-    f"<b>Longitude:</b> {point['longitude']:.5f}<br><br>"
 
-    "<b>Stress fingerprint</b><br>"
-    "NDVI: Preliminary<br>"
-    "NDWI: Planned<br>"
-    "Turbidity/NDCI: Planned<br>"
-    "Fragmentation: Planned<br>"
-    "Planet Tanager anomaly: Planned<br><br>"
+            popup_text = (
+                f"<b>Region:</b> {point['region']}<br>"
+                f"<b>Source:</b> {point['source']}<br>"
+                f"<b>Latitude:</b> {point['latitude']:.5f}<br>"
+                f"<b>Longitude:</b> {point['longitude']:.5f}<br><br>"
 
-    "<b>Possible cause</b><br>"
-    "Requires field validation<br><br>"
+                "<b>Stress fingerprint</b><br>"
+                "NDVI: Preliminary<br>"
+                "NDWI: Planned<br>"
+                "Turbidity/NDCI: Planned<br>"
+                "Fragmentation: Planned<br>"
+                "Planet Tanager anomaly: Planned<br><br>"
 
-    "<b>Confidence and uncertainty</b><br>"
-    "Preliminary reference point; multi-date validation required<br><br>"
+                "<b>Possible cause</b><br>"
+                "Requires field validation<br><br>"
 
-    "<b>Recommended action</b><br>"
-    "Inspect by UAV or field team<br>"
-    "Test salinity and water quality<br>"
-    "Prioritize protection<br><br>"
+                "<b>Confidence and uncertainty</b><br>"
+                "Preliminary reference point; "
+                "multi-date validation required<br><br>"
 
-    "<b>Outcome tracking</b><br>"
-    "Verification: Pending<br>"
-    "Intervention: Not recorded<br>"
-    "Recovery after 30/60/90 days: Pending"
-)
+                "<b>Recommended action</b><br>"
+                "Inspect by UAV or field team<br>"
+                "Test salinity and water quality<br>"
+                "Prioritize protection<br><br>"
+
+                "<b>Outcome tracking</b><br>"
+                "Verification: Pending<br>"
+                "Intervention: Not recorded<br>"
+                "Recovery after 30/60/90 days: Pending"
+            )
 
             folium.CircleMarker(
                 location=[
@@ -198,7 +212,7 @@ if mangrove_points:
                 weight=1,
                 popup=folium.Popup(
                     popup_text,
-                    max_width=280
+                    max_width=320
                 )
             ).add_to(marker_cluster)
 
@@ -214,8 +228,11 @@ if mangrove_points:
     )
 
     st.caption(
-        f"Displaying {len(mangrove_points)} GCC mangrove reference points."
+        f"Displaying {len(mangrove_points)} "
+        "GCC mangrove reference points."
     )
 
 else:
-    st.warning("No GCC mangrove points were found.")
+    st.warning(
+        "No GCC mangrove points were found."
+    )
