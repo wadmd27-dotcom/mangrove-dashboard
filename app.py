@@ -197,8 +197,8 @@ if show_gmw and gmw_data is not None:
             "fillOpacity": 0.9
         },
         tooltip=folium.GeoJsonTooltip(
-            fields=["layer", "year", "class"],
-            aliases=["Layer", "Year", "Class"],
+            fields=["region", "source"],
+            aliases=["Region", "Source"],
             sticky=True
         ),
         popup=folium.GeoJsonPopup(
