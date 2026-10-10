@@ -13,50 +13,57 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- Custom CSS for Mangrove Background & Eco-Glassmorphism UI ---
+
+# ---------------------------------------------------------
+# Custom styling
+# ---------------------------------------------------------
+
 st.markdown(
     """
     <style>
     .stApp {
-        background: linear-gradient(rgba(10, 30, 20, 0.88), rgba(15, 35, 25, 0.85)), 
-                    url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1920&q=80');
+        background:
+            linear-gradient(
+                rgba(10, 30, 20, 0.86),
+                rgba(15, 35, 25, 0.84)
+            ),
+            url("https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?auto=format&fit=crop&w=1920&q=80");
+
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
     }
-    
-    /* Make main text and headers crisp and readable */
-    h1, h2, h3, h4, h5, h6, p, span, label, .stMarkdown {
+
+    h1, h2, h3, h4, h5, h6,
+    p, span, label, .stMarkdown {
         color: #e2ede5 !important;
     }
-    
-    /* Style metric cards for a glassmorphism effect */
+
     [data-testid="stMetric"] {
-        background-color: rgba(20, 50, 35, 0.65);
-        border: 1px solid rgba(50, 150, 100, 0.4);
+        background-color: rgba(20, 50, 35, 0.78);
+        border: 1px solid rgba(50, 150, 100, 0.45);
         padding: 15px;
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
     }
-    
-    /* Sidebar styling */
+
     [data-testid="stSidebar"] {
-        background-color: rgba(10, 25, 18, 0.92);
-        border-right: 1px solid rgba(50, 150, 100, 0.2);
+        background-color: rgba(10, 25, 18, 0.96);
+        border-right: 1px solid rgba(50, 150, 100, 0.25);
     }
-    
-    /* Tabs styling */
+
     .stTabs [data-baseweb="tab-list"] {
         gap: 10px;
     }
+
     .stTabs [data-baseweb="tab"] {
-        background-color: rgba(20, 50, 35, 0.6);
-        border-radius: 8px 8px 0px 0px;
-        color: #e2ede5;
+        background-color: rgba(20, 50, 35, 0.65);
+        border-radius: 8px 8px 0 0;
         padding: 10px 20px;
     }
+
     .stTabs [aria-selected="true"] {
-        background-color: rgba(30, 90, 60, 0.85) !important;
+        background-color: rgba(30, 90, 60, 0.9) !important;
         font-weight: bold;
     }
     </style>
@@ -65,17 +72,30 @@ st.markdown(
 )
 
 
+# ---------------------------------------------------------
+# File paths
+# ---------------------------------------------------------
+
 GEOJSON_PATH = Path(
     "images/gcc_mangrove_analysis_points.geojson"
 )
+
 UAE_NDVI_PATH = Path(
     "images/uae_ndvi_summary.json"
 )
 
 
+# ---------------------------------------------------------
+# Data loaders
+# ---------------------------------------------------------
+
 @st.cache_data
 def load_mangrove_points():
-    with open(GEOJSON_PATH, "r", encoding="utf-8") as file:
+    with open(
+        GEOJSON_PATH,
+        "r",
+        encoding="utf-8"
+    ) as file:
         data = json.load(file)
 
     points = []
@@ -89,10 +109,15 @@ def load_mangrove_points():
             geometry.get("type") == "Point"
             and len(coordinates) >= 2
         ):
+            country_or_region = properties.get(
+                "country",
+                properties.get("region", "GCC")
+            )
+
             points.append({
                 "latitude": float(coordinates[1]),
                 "longitude": float(coordinates[0]),
-                "region": properties.get("region", "GCC"),
+                "region": str(country_or_region),
                 "source": properties.get(
                     "source",
                     "Global Mangrove Watch 2020"
@@ -112,210 +137,401 @@ def load_uae_ndvi_summary():
         return json.load(file)
 
 
+# ---------------------------------------------------------
+# Load data
+# ---------------------------------------------------------
+
 try:
     mangrove_points = load_mangrove_points()
 except Exception as error:
-    st.error(f"Could not load GCC mangrove data: {error}")
+    st.error(
+        f"Could not load GCC mangrove data: {error}"
+    )
     st.stop()
+
 
 try:
     uae_ndvi = load_uae_ndvi_summary()
 except Exception as error:
-    st.error(f"Could not load UAE NDVI summary: {error}")
+    st.error(
+        f"Could not load UAE NDVI summary: {error}"
+    )
     st.stop()
 
 
-# --- Sidebar Controls ---
+# ---------------------------------------------------------
+# Sidebar
+# ---------------------------------------------------------
+
 st.sidebar.title("🌿 Mangrove Stress Radar")
+
 st.sidebar.write(
-    "Explore GCC mangrove locations and preliminary health indicators."
+    "Explore GCC mangrove locations and preliminary "
+    "health indicators."
 )
 
 st.sidebar.divider()
 
-st.sidebar.subheader("🗺️ Map & Region Filters")
+st.sidebar.subheader("Map and region filters")
 
 show_mangroves = st.sidebar.checkbox(
     "Show GCC mangrove points",
     value=True
 )
 
-# Interactive Region Filter
 selected_region = st.sidebar.selectbox(
-    "Filter by Sub-Region",
-    options=["All GCC Regions", "UAE", "Saudi Arabia", "Oman", "Qatar", "Bahrain", "Kuwait"]
+    "Filter by sub-region",
+    [
+        "All GCC Regions",
+        "UAE",
+        "Saudi Arabia",
+        "Oman",
+        "Qatar",
+        "Bahrain",
+        "Kuwait"
+    ]
 )
 
 st.sidebar.divider()
 
-st.sidebar.subheader("ℹ️ Study Information")
-st.sidebar.write("**Region:** GCC Countries")
-st.sidebar.write("**Countries:** UAE, Saudi Arabia, Oman, Qatar, Bahrain, Kuwait")
-st.sidebar.write("**Reference Layer:** Global Mangrove Watch")
-st.sidebar.write("**Monitoring Source:** Sentinel-2 & Planet Tanager")
-st.sidebar.write("**Comparison Period:** 2024–2025")
+st.sidebar.subheader("Study information")
+
+st.sidebar.markdown(
+    "**Region:** GCC countries"
+)
+
+st.sidebar.markdown(
+    "**Countries:** UAE, Saudi Arabia, Oman, Qatar, Bahrain and Kuwait"
+)
+
+st.sidebar.markdown(
+    "**Reference layer:** Global Mangrove Watch 2020"
+)
+
+st.sidebar.markdown(
+    "**Monitoring source:** Sentinel-2 & Planet Tanager"
+)
+
+st.sidebar.markdown(
+    "**Comparison:** 2024–2025"
+)
 
 
-# --- Main Header ---
-st.title("🌿 GCC Mangrove Stress Radar & Blue Carbon Monitor")
-st.markdown(
-    "*Detect emerging mangrove stress before visible habitat loss, explain environmental signals, and empower rapid field verification.*"
+# ---------------------------------------------------------
+# Main header
+# ---------------------------------------------------------
+
+st.title(
+    "🌿 GCC Mangrove Stress Radar & Blue Carbon Monitor"
+)
+
+st.write(
+    "Detect emerging mangrove stress before visible "
+    "habitat loss, explain the possible signal, and "
+    "support field verification."
 )
 
 st.info(
-    "🔍 **POC Scope:** Displaying sampled GCC mangrove reference points derived from "
-    "Global Mangrove Watch. Health and change indicators integrate multi-date Sentinel-2 and hyperspectral anomaly detection."
+    "POC scope: the map shows 475 sampled GCC mangrove "
+    "reference points derived from Global Mangrove Watch "
+    "2020. Health and change indicators are preliminary "
+    "and require multi-tile Sentinel-2 processing and "
+    "field validation for full GCC coverage."
 )
 
 
-# --- Top Summary Metrics ---
+# ---------------------------------------------------------
+# Summary metrics
+# ---------------------------------------------------------
+
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     st.metric(
-        "UAE NDVI Status",
-        "Preliminary"
+        "UAE NDVI status",
+        uae_ndvi.get(
+            "status",
+            "Preliminary"
+        )
     )
 
 with col2:
     st.metric(
-        "UAE Later Median NDVI",
-        f"{uae_ndvi['later_median_ndvi']:.4f}"
+        "UAE later median NDVI",
+        f"{uae_ndvi.get('later_median_ndvi', 0.0):.4f}"
     )
 
 with col3:
     st.metric(
-        "Strong Decrease",
-        f"{uae_ndvi['strong_decrease_percent']:.2f}%"
+        "Strong decrease",
+        f"{uae_ndvi.get('strong_decrease_percent', 0.0):.2f}%"
     )
 
 with col4:
     st.metric(
-        "Strong Increase",
-        f"{uae_ndvi['strong_increase_percent']:.2f}%"
+        "Strong increase",
+        f"{uae_ndvi.get('strong_increase_percent', 0.0):.2f}%"
     )
+
+
+# ---------------------------------------------------------
+# Tabs
+# ---------------------------------------------------------
 
 st.markdown("<br>", unsafe_allow_html=True)
 
-# --- Interactive Tabs for Better Layout & Interactivity ---
-tab1, tab2 = st.tabs(["🗺️ Interactive Map Explorer", "📊 Regional Analytics & Insights"])
+tab1, tab2 = st.tabs(
+    [
+        "🗺️ Interactive Map Explorer",
+        "📊 Regional Ecosystem Insights"
+    ]
+)
+
+
+# ---------------------------------------------------------
+# Tab 1: Interactive map
+# ---------------------------------------------------------
 
 with tab1:
+
     st.subheader("Interactive GCC Mangrove Map")
+
     st.write(
-        "Click on any mangrove cluster or point marker to inspect its detailed stress fingerprint, possible causes, and recommended actions."
+        "Click a mangrove point to view its stress "
+        "fingerprint, possible causes, and recommended actions."
     )
 
     if mangrove_points:
-        # Filter points based on sidebar selection if needed
+
         filtered_points = mangrove_points
+
         if selected_region != "All GCC Regions":
-            # Simple simulation filter or match region property if tagged
-            filtered_points = [p for p in mangrove_points if selected_region.lower() in p["region"].lower() or len(mangrove_points) > 0]
 
-        average_latitude = sum(
-            point["latitude"]
-            for point in mangrove_points
-        ) / len(mangrove_points)
+            filtered_points = [
+                point
+                for point in mangrove_points
+                if selected_region.lower()
+                in point["region"].lower()
+            ]
 
-        average_longitude = sum(
-            point["longitude"]
-            for point in mangrove_points
-        ) / len(mangrove_points)
+            if not filtered_points:
 
-        mangrove_map = folium.Map(
-            location=[
-                average_latitude,
-                average_longitude
-            ],
-            zoom_start=5,
-            tiles="CartoDB dark_matter",  # Sleek dark tiles matching the background aesthetic
-            control_scale=True
-        )
-
-        marker_cluster = MarkerCluster(
-            name="GCC Mangrove Points"
-        )
-
-        if show_mangroves:
-            for point in filtered_points:
-                popup_text = (
-                    f"<b>Region:</b> {point['region']}<br>"
-                    f"<b>Source:</b> {point['source']}<br>"
-                    f"<b>Latitude:</b> {point['latitude']:.5f}<br>"
-                    f"<b>Longitude:</b> {point['longitude']:.5f}<br><br>"
-
-                    "<b>Stress fingerprint</b><br>"
-                    "NDVI: Preliminary<br>"
-                    "NDWI: Planned<br>"
-                    "Turbidity/NDCI: Planned<br>"
-                    "Fragmentation: Planned<br>"
-                    "Planet Tanager anomaly: Planned<br><br>"
-
-                    "<b>Possible cause</b><br>"
-                    "Requires field validation<br><br>"
-
-                    "<b>Confidence and uncertainty</b><br>"
-                    "Preliminary reference point; "
-                    "multi-date validation required<br><br>"
-
-                    "<b>Recommended action</b><br>"
-                    "Inspect by UAV or field team<br>"
-                    "Test salinity and water quality<br>"
-                    "Prioritize protection<br><br>"
-
-                    "<b>Outcome tracking</b><br>"
-                    "Verification: Pending<br>"
-                    "Intervention: Not recorded<br>"
-                    "Recovery after 30/60/90 days: Pending"
+                st.warning(
+                    f"No points are labeled specifically as "
+                    f"{selected_region}. The current GeoJSON "
+                    "uses GCC as the region label, so all points "
+                    "remain available under All GCC Regions."
                 )
 
-                folium.CircleMarker(
-                    location=[
-                        point["latitude"],
-                        point["longitude"]
-                    ],
-                    radius=5,
-                    color="#2ecc71",
-                    fill=True,
-                    fill_color="#27ae60",
-                    fill_opacity=0.85,
-                    weight=1,
-                    popup=folium.Popup(
-                        popup_text,
-                        max_width=320
-                    )
-                ).add_to(marker_cluster)
+        if filtered_points:
 
-        marker_cluster.add_to(mangrove_map)
-        folium.LayerControl().add_to(mangrove_map)
+            average_latitude = sum(
+                point["latitude"]
+                for point in filtered_points
+            ) / len(filtered_points)
 
-        st_folium(
-            mangrove_map,
-            width="100%",
-            height=600,
-            key="gcc_mangrove_map"
-        )
+            average_longitude = sum(
+                point["longitude"]
+                for point in filtered_points
+            ) / len(filtered_points)
 
-        st.caption(
-            f"Displaying {len(filtered_points)} GCC mangrove reference points across the ecosystem."
-        )
+            # OpenStreetMap does not require an API key
+            mangrove_map = folium.Map(
+                location=[
+                    average_latitude,
+                    average_longitude
+                ],
+                zoom_start=5,
+                tiles="OpenStreetMap",
+                control_scale=True
+            )
+
+            marker_cluster = MarkerCluster(
+                name="GCC Mangrove Points"
+            )
+
+            if show_mangroves:
+
+                for point in filtered_points:
+
+                    popup_text = f"""
+                    <div style="
+                        font-family: Arial, sans-serif;
+                        font-size: 13px;
+                        width: 280px;
+                        line-height: 1.45;
+                        color: #222;
+                    ">
+
+                        <div style="
+                            color: #07543e;
+                            font-size: 16px;
+                            font-weight: bold;
+                            margin-bottom: 6px;
+                        ">
+                            🌿 Mangrove Stress Inspection
+                        </div>
+
+                        <b>Region:</b>
+                        {point["region"]}<br>
+
+                        <b>Source:</b>
+                        {point["source"]}<br>
+
+                        <b>Latitude:</b>
+                        {point["latitude"]:.5f}<br>
+
+                        <b>Longitude:</b>
+                        {point["longitude"]:.5f}
+
+                        <hr>
+
+                        <b>Stress fingerprint</b><br>
+                        NDVI: Preliminary UAE indicator<br>
+                        NDWI: Planned<br>
+                        Turbidity/NDCI: Planned<br>
+                        Fragmentation or canopy thinning: Planned<br>
+                        Planet Tanager anomaly: Planned
+
+                        <hr>
+
+                        <b>Possible cause</b><br>
+                        Possible water stress, sediment or pollution,
+                        clearing, construction, storm damage, or
+                        restoration failure. This is not a proven diagnosis.
+
+                        <hr>
+
+                        <b>Confidence and uncertainty</b><br>
+                        Imagery quality: To be assessed<br>
+                        Affected area: To be assessed<br>
+                        Agreement between indices: Pending<br>
+                        Persistence across dates: Pending
+
+                        <hr>
+
+                        <b>Recommended action</b><br>
+                        • Inspect by UAV or field team<br>
+                        • Test salinity and water quality<br>
+                        • Check restoration plots<br>
+                        • Prioritize protection<br>
+                        • Replant only if suitable
+
+                        <hr>
+
+                        <b>Outcome tracking</b><br>
+                        Alert verification: Pending<br>
+                        Intervention: Not recorded<br>
+                        Recovery after 30/60/90 days: Pending<br>
+                        Carbon, biodiversity, and coastal-protection
+                        value at risk: To be estimated
+
+                    </div>
+                    """
+
+                    folium.CircleMarker(
+                        location=[
+                            point["latitude"],
+                            point["longitude"]
+                        ],
+                        radius=5,
+                        color="#07543e",
+                        fill=True,
+                        fill_color="#16805b",
+                        fill_opacity=0.85,
+                        weight=1,
+                        popup=folium.Popup(
+                            popup_text,
+                            max_width=360
+                        )
+                    ).add_to(marker_cluster)
+
+            marker_cluster.add_to(mangrove_map)
+
+            folium.LayerControl().add_to(mangrove_map)
+
+            st_folium(
+                mangrove_map,
+                width="100%",
+                height=600,
+                key="gcc_mangrove_map"
+            )
+
+            st.caption(
+                f"Displaying {len(filtered_points)} "
+                "GCC mangrove reference points."
+            )
+
+        else:
+            st.warning(
+                "No points are available for this filter."
+            )
+
     else:
-        st.warning("No GCC mangrove points were found.")
+        st.warning(
+            "No GCC mangrove points were found."
+        )
+
+
+# ---------------------------------------------------------
+# Tab 2: Regional insights
+# ---------------------------------------------------------
 
 with tab2:
-    st.subheader("📊 Regional Ecosystem Health & Blue Carbon Overview")
-    st.write("Summary statistics derived from high-resolution Sentinel-2 and Global Mangrove Watch baselines.")
-    
-    r_col1, r_col2 = st.columns(2)
-    with r_col1:
-        st.markdown("### 🌿 Monitoring Highlights")
-        st.success("• **High Salinity Resilience:** Fringes near hyper-saline sabkha flats show early osmotic stress indicators.")
-        st.info("• **Frequency:** Multi-date comparison captures seasonal canopy density fluctuations between Q1 2024 and Q1 2025.")
-        st.warning("• **Action Priority:** High-stress zones flagged for targeted UAV inspection and water quality testing.")
-    
-    with r_col2:
-        st.markdown("### 🛰️ Sensor Stack Integration")
-        st.write("1. **Global Mangrove Watch 2020:** Establishes accurate baseline spatial footprints.")
-        st.write("2. **Sentinel-2 L2A:** Provides frequent temporal tracking of NDVI and NDWI.")
-        st.write("3. **Planet Tanager Hyperspectral:** Advanced detection of subtle chlorophyll and leaf moisture anomalies.")
+
+    st.subheader(
+        "📊 Regional Ecosystem Health Summary"
+    )
+
+    st.write(
+        "Overview of preliminary monitoring indicators "
+        "across Arabian Gulf and Red Sea mangrove areas."
+    )
+
+    t_col1, t_col2 = st.columns(2)
+
+    with t_col1:
+
+        st.markdown("### 🌿 Key observations")
+
+        st.success(
+            "Baseline mapping uses Global Mangrove Watch "
+            "2020 reference data."
+        )
+
+        st.info(
+            "Sentinel-2 comparisons provide a preliminary "
+            "view of vegetation-condition change."
+        )
+
+        st.warning(
+            "NDWI, turbidity, fragmentation, hyperspectral "
+            "anomalies, and field verification are planned "
+            "for the next POC stage."
+        )
+
+    with t_col2:
+
+        st.markdown("### 🛰️ Technology stack")
+
+        st.write(
+            "• Satellite source: Sentinel-2 L2A"
+        )
+
+        st.write(
+            "• Hyperspectral source: Planet Tanager"
+        )
+
+        st.write(
+            "• Reference layer: Global Mangrove Watch 2020"
+        )
+
+        st.write(
+            "• Target area: UAE, Saudi Arabia, Oman, "
+            "Qatar, Bahrain and Kuwait"
+        )
+
+        st.write(
+            "• POC reference points: "
+            f"{len(mangrove_points)}"
+        )
