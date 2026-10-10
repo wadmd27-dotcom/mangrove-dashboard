@@ -1,0 +1,13 @@
+{
+  "region": "United Arab Emirates",
+  "baseline_date": "2024-02-22",
+  "later_date": "2025-02-04",
+  "source": "Sentinel-2 L2A",
+  "baseline_median_ndvi": -0.018315019086003304,
+  "later_median_ndvi": -0.01645338162779808,
+  "median_ndvi_change": 0.0054036956280469894,
+  "strong_decrease_percent": 3.548494506017219,
+  "strong_increase_percent": 6.236027208295676,
+  "valid_pixels": 21023,
+  "status": "Preliminary UAE indicator"
+}
