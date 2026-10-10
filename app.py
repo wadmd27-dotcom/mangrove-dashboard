@@ -9,6 +9,7 @@ st.set_page_config(
     page_title="GCC Mangrove Stress Radar", page_icon="🌿", layout="wide"
 )
 
+# Paths matching your data export structure
 GEOJSON_PATH = Path("images/gcc_mangrove_analysis_points.geojson")
 UAE_NDVI_PATH = Path("images/uae_ndvi_summary.json")
 
@@ -28,15 +29,18 @@ def load_uae_ndvi_summary():
 try:
   geojson_data = load_mangrove_geojson()
 except Exception as error:
-  st.error(f"Could not load GCC mangrove data: {error}")
+  st.error(
+      f"Could not load GCC mangrove GeoJSON from {GEOJSON_PATH}: {error}"
+  )
   st.stop()
 
 try:
   uae_ndvi = load_uae_ndvi_summary()
 except Exception as error:
-  st.error(f"Could not load UAE NDVI summary: {error}")
+  st.error(f"Could not load UAE NDVI summary from {UAE_NDVI_PATH}: {error}")
   st.stop()
 
+# --- Sidebar ---
 st.sidebar.title("🌿 Mangrove Stress Radar")
 st.sidebar.write(
     "Explore GCC mangrove locations and preliminary health indicators."
@@ -52,10 +56,14 @@ st.sidebar.write("Region: GCC countries")
 st.sidebar.write(
     "Countries: UAE, Saudi Arabia, Oman, Qatar, Bahrain and Kuwait"
 )
-st.sidebar.write("Reference layer: Global Mangrove Watch")
-st.sidebar.write("Monitoring source: Sentinel-2 & Planet Tanager")
-st.sidebar.write("Comparison: 2024–2025")
+st.sidebar.write("Reference layer: Global Mangrove Watch 2020")
+st.sidebar.write("Monitoring source: Sentinel-2 L2A & Planet Tanager[cite: 4]")
+st.sidebar.write(
+    f"Comparison Period: {uae_ndvi.get('baseline_date', '2024')} vs"
+    f" {uae_ndvi.get('later_date', '2025')}"
+)
 
+# --- Main Page Header ---
 st.title("Mangrove Stress Radar")
 st.write(
     "Detect emerging mangrove stress before visible habitat loss, explain the"
@@ -63,32 +71,37 @@ st.write(
 )
 
 st.info(
-    "POC scope: the map shows sampled GCC mangrove reference points derived"
-    " from Global Mangrove Watch 2020. Click any point to inspect its unique"
-    " metrics."
+    "Interactive POC: Click any point on the map to inspect its real pixel-level"
+    " health score, median NDVI, and change detection status."
 )
 
-# Top Summary Metrics
+# --- Top Summary Metrics (from uae_ndvi_summary.json) ---
 col1, col2, col3, col4 = st.columns(4)
 
 with col1:
-  st.metric("UAE NDVI status", "Preliminary")
+  st.metric("UAE Status", uae_ndvi.get("status", "Preliminary indicator"))
 
 with col2:
   st.metric(
-      "UAE later median NDVI", f"{uae_ndvi['later_median_ndvi']:.4f}"
+      "Later Median NDVI", f"{uae_ndvi.get('later_median_ndvi', 0.0):.4f}"
   )
 
 with col3:
-  st.metric("Strong decrease", f"{uae_ndvi['strong_decrease_percent']:.2f}%")
+  st.metric(
+      "Strong Decrease",
+      f"{uae_ndvi.get('strong_decrease_percent', 0.0):.2f}%",
+  )
 
 with col4:
-  st.metric("Strong increase", f"{uae_ndvi['strong_increase_percent']:.2f}%")
+  st.metric(
+      "Strong Increase",
+      f"{uae_ndvi.get('strong_increase_percent', 0.0):.2f}%",
+  )
 
 st.subheader("Interactive GCC Mangrove Map")
 st.write(
-    "**Click any mangrove point on the map below** to view its specific site"
-    " inspection breakdown."
+    "**Click any mangrove point below** to view its site-specific inspection"
+    " breakdown."
 )
 
 # Calculate center coordinates from features
@@ -104,31 +117,37 @@ if coords_list:
 
   mangrove_map = folium.Map(
       location=[avg_lat, avg_lon],
-      zoom_start=5,
+      zoom_start=6,
       tiles="OpenStreetMap",
       control_scale=True,
   )
 
   if show_mangroves:
 
-    # Style points as custom circle markers
     def marker_style(feature):
+      # Color-code based on change status calculated in your script
+      status = feature.get("properties", {}).get("change_status", "Stable")
+      color = (
+          "#d9534f"
+          if "decrease" in status.lower()
+          else "#f0ad4e" if "increase" in status.lower() else "#16805b"
+      )
       return {
           "radius": 5,
-          "fillColor": "#16805b",
+          "fillColor": color,
           "color": "#07543e",
           "weight": 1,
           "fillOpacity": 0.8,
       }
 
-    # Render points using folium.GeoJson to capture unique properties on click
     folium.GeoJson(
         geojson_data,
         marker_function=lambda feature, latlng: folium.CircleMarker(
             latlng, **marker_style(feature)
         ),
         tooltip=folium.GeoJsonTooltip(
-            fields=["region"], aliases=["Region:"]
+            fields=["health_score", "change_status"],
+            aliases=["Health Score:", "Status:"],
         ),
     ).add_to(mangrove_map)
 
@@ -143,35 +162,35 @@ if coords_list:
       returned_objects=["last_object_clicked"],
   )
 
-  st.caption(
-      f"Displaying {len(coords_list)} GCC mangrove reference points."
-  )
+  st.caption(f"Displaying {len(coords_list)} analyzed mangrove reference points.")
 
-  # --- Interactive Site Inspector Section (Unique per point) ---
+  # --- Interactive Site Inspector Section (Unique per clicked point) ---
   st.markdown("---")
   st.subheader("📍 Site Inspector & Detailed Analysis")
 
   if map_data and map_data.get("last_object_clicked"):
     clicked = map_data["last_object_clicked"]
     props = clicked.get("properties", {})
+    coords = clicked.get("geometry", {}).get("coordinates", [0, 0])
 
-    region = props.get("region", "GCC Region")
-    source = props.get("source", "Global Mangrove Watch 2020")
+    # Extract exact properties generated by your script
+    health_score = props.get("health_score", "N/A")
+    ndvi_val = props.get("ndvi", "N/A")
+    ndvi_change = props.get("ndvi_change", "N/A")
+    change_status = props.get("change_status", "Stable")
+    action = props.get("recommended_action", "Continue monitoring")
 
-    # Pull unique metrics stored in this specific point's properties (with fallbacks if keys are missing)
-    health_score = props.get("health_score", "27.6 / 100")
-    median_ndvi = props.get("median_ndvi", "0.0039")
-    possible_decrease = props.get("possible_decrease", "0.37%")
-    stable_area = props.get("stable_area", "99.63%")
+    st.success(
+        f"**Selected Coordinate:** Longitude {coords[0]:.4f}, Latitude"
+        f" {coords[1]:.4f}"
+    )
 
-    st.success(f"**Selected Location:** {region} (Source: {source})")
-
-    # Display unique metrics for this exact clicked point
+    # Unique Metrics Row for the clicked point
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Mangrove Health Score", health_score)
-    m2.metric("Median NDVI", median_ndvi)
-    m3.metric("Possible Decrease", possible_decrease)
-    m4.metric("Stable Area", stable_area)
+    m1.metric("Mangrove Health Score", f"{health_score} / 100")
+    m2.metric("Pixel NDVI", f"{ndvi_val}")
+    m3.metric("NDVI Change", f"{ndvi_change}")
+    m4.metric("Status", change_status)
 
     st.markdown("---")
 
@@ -180,28 +199,29 @@ if coords_list:
     with c1:
       st.markdown("#### 1. Mangrove Mapping")
       st.info(
-          f"Baseline extent mapped via {source} at coordinates"
-          f" [{clicked.get('lat', 'N/A')}, {clicked.get('lng', 'N/A')}]."
+          "Verified baseline extent using Global Mangrove Watch 2020 reference"
+          " mapping[cite: 4]."
       )
 
     with c2:
       st.markdown("#### 2. Health Scoring")
       st.warning(
-          f"Health index evaluated at {health_score} with Median NDVI of"
-          f" {median_ndvi} using Sentinel-2 / Tanager data."
-      )
+          f"Evaluated via Sentinel-2 L2A[cite: 4] spectral bands, yielding a health"
+            f" score of {health_score}/100 and NDVI of {ndvi_val}."
+        )
 
     with c3:
       st.markdown("#### 3. Change Detection")
       st.error(
-          f"Temporal change detected: {possible_decrease} possible decrease,"
-          f" {stable_area} stable canopy area."
+          f"Temporal comparison (2024–2025)[cite: 4]: **{change_status}**."
+          f" Recommended Action: *{action}*."
       )
   else:
     st.info(
-        "👉 **Tip:** Click on any green circle marker on the map above to view"
-        " its specific health score, median NDVI, and change metrics."
+        "👉 **Tip:** Click on any colored circle marker on the map above to"
+        " inspect its individual health score, NDVI, and change detection"
+        " status."
     )
 
 else:
-  st.warning("No GCC mangrove points were found.")
+  st.warning("No mangrove points were found in the GeoJSON dataset.")
