@@ -1,16 +1,13 @@
 import json
+import os
 
 import folium
 import streamlit as st
 from streamlit_folium import st_folium
 
 
-# -----------------------------
-# Page configuration
-# -----------------------------
-
 st.set_page_config(
-    page_title="UAE Mangrove Watch",
+    page_title="Mangrove Stress Radar",
     page_icon="🌿",
     layout="wide",
     initial_sidebar_state="expanded"
@@ -18,71 +15,48 @@ st.set_page_config(
 
 
 # -----------------------------
-# GMW-inspired styling
+# GMW-inspired visual style
 # -----------------------------
-
 st.markdown(
     """
     <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-    html, body, [class*="css"] {
-        font-family: 'Inter', Arial, sans-serif;
+    .stApp {
+        background-color: #f4f8f5;
+        color: #173b35;
     }
 
-    .stApp {
-        background-color: #f4f8f7;
+    section[data-testid="stSidebar"] {
+        background-color: #e1eee8;
+        border-right: 1px solid #b7d2c5;
     }
 
     h1, h2, h3 {
-        color: #006f73;
+        color: #145c4a;
+        font-family: Arial, sans-serif;
+    }
+
+    .dashboard-subtitle {
+        color: #55756d;
+        font-size: 1.05rem;
+        margin-bottom: 1rem;
+    }
+
+    .section-label {
+        color: #145c4a;
         font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        font-size: 0.82rem;
+        margin-top: 1rem;
     }
 
-    .gmw-banner {
-        background: linear-gradient(135deg, #007f82, #00a6a6);
-        color: white;
-        padding: 24px 32px;
-        border-radius: 16px;
-        margin-bottom: 20px;
-    }
-
-    .gmw-banner h1 {
-        color: white;
-        margin: 0;
-        font-size: 34px;
-    }
-
-    .gmw-banner p {
-        color: #e7ffff;
-        margin-top: 8px;
-        font-size: 16px;
-    }
-
-    .info-card {
-        background: white;
-        border-left: 5px solid #00a6a6;
-        border-radius: 12px;
-        padding: 16px 20px;
-        box-shadow: 0 2px 8px rgba(0, 80, 80, 0.08);
-        margin-bottom: 18px;
-    }
-
-    [data-testid="stSidebar"] {
-        background-color: #e8f3f1;
-    }
-
-    [data-testid="stSidebar"] h1,
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3 {
-        color: #006f73;
-    }
-
-    .stButton button {
-        background-color: #008c8c;
-        color: white;
-        border-radius: 8px;
-        border: none;
+    .info-box {
+        background-color: #e5f2ec;
+        border-left: 5px solid #16805b;
+        padding: 1rem;
+        border-radius: 6px;
+        color: #244d43;
+        margin-top: 1rem;
     }
     </style>
     """,
@@ -91,17 +65,53 @@ st.markdown(
 
 
 # -----------------------------
-# Header
+# Load GMW GeoJSON
 # -----------------------------
+geojson_path = "images/gmw_uae_extent.geojson"
+
+gmw_data = None
+
+if os.path.exists(geojson_path):
+    with open(geojson_path, "r") as file:
+        gmw_data = json.load(file)
+
+
+# -----------------------------
+# Sidebar
+# -----------------------------
+st.sidebar.title("🌿 Mangrove Stress Radar")
+st.sidebar.markdown(
+    "Explore mangrove extent, preliminary health, and change indicators."
+)
+
+st.sidebar.markdown("---")
+
+st.sidebar.subheader("Map layers")
+
+show_gmw = st.sidebar.checkbox(
+    "GMW mangrove extent",
+    value=True
+)
+
+st.sidebar.markdown("---")
+
+st.sidebar.subheader("Study information")
+st.sidebar.write("Region: UAE / Gulf coast")
+st.sidebar.write("Reference layer: Global Mangrove Watch")
+st.sidebar.write("Monitoring source: Sentinel-2")
+st.sidebar.write("Comparison: 2024–2025")
+
+
+# -----------------------------
+# Main title
+# -----------------------------
+st.title("Mangrove Stress Radar")
 
 st.markdown(
     """
-    <div class="gmw-banner">
-        <h1>🌿 UAE Mangrove Watch</h1>
-        <p>
-            Interactive mangrove habitat mapping and satellite-based
-            ecosystem monitoring.
-        </p>
+    <div class="dashboard-subtitle">
+    Detect emerging mangrove stress before visible habitat loss,
+    explain the possible signal, and support field verification.
     </div>
     """,
     unsafe_allow_html=True
@@ -109,70 +119,74 @@ st.markdown(
 
 
 # -----------------------------
-# Sidebar controls
+# Summary metrics
 # -----------------------------
-
-st.sidebar.markdown("## Map Controls")
-
-show_gmw = st.sidebar.checkbox(
-    "Mangrove habitat extent",
-    value=True
+st.markdown(
+    '<div class="section-label">Current satellite indicators</div>',
+    unsafe_allow_html=True
 )
 
-st.sidebar.markdown("---")
+metric_1, metric_2, metric_3, metric_4 = st.columns(4)
 
-st.sidebar.markdown(
-    """
-    **Reference dataset**
+with metric_1:
+    st.metric(
+        "Mangrove health score",
+        "27.6 / 100"
+    )
 
-    Global Mangrove Watch habitat extent
+with metric_2:
+    st.metric(
+        "Median NDVI",
+        "0.0039"
+    )
 
-    **Reference year**
+with metric_3:
+    st.metric(
+        "Possible decrease",
+        "0.37%"
+    )
 
-    2020
+with metric_4:
+    st.metric(
+        "Stable area",
+        "99.63%"
+    )
 
-    **Study area**
 
-    United Arab Emirates
-    """
+# -----------------------------
+# Interactive map
+# -----------------------------
+st.markdown(
+    '<div class="section-label">Interactive mangrove map</div>',
+    unsafe_allow_html=True
 )
 
+st.write(
+    "Click anywhere on the map to inspect coordinates. "
+    "Click a green mangrove area to view its reference information."
+)
 
-# -----------------------------
-# Load GMW GeoJSON
-# -----------------------------
-
-with open("images/gmw_uae_extent.geojson", "r") as file:
-    gmw_data = json.load(file)
-
-
-# -----------------------------
-# Create interactive map
-# -----------------------------
-
-interactive_map = folium.Map(
+mangrove_map = folium.Map(
     location=[24.5, 54.5],
     zoom_start=6,
     tiles="OpenStreetMap",
     control_scale=True
 )
 
-
-# Add GMW layer
-if show_gmw:
+if show_gmw and gmw_data is not None:
     folium.GeoJson(
         gmw_data,
-        name="Mangrove Habitat Extent",
+        name="GMW Mangrove Extent",
         style_function=lambda feature: {
-            "fillColor": "#00a6a6",
-            "color": "#006f73",
+            "fillColor": "#16805b",
+            "color": "#07543e",
             "weight": 1,
             "fillOpacity": 0.75
         },
         highlight_function=lambda feature: {
-            "fillColor": "#f2c94c",
-            "color": "#9b7200",
-            "weight": 3,
+            "fillColor": "#f2b134",
+            "color": "#8a5a00",
+            "weight": 2,
             "fillOpacity": 0.9
         },
         tooltip=folium.GeoJsonTooltip(
@@ -184,78 +198,71 @@ if show_gmw:
             fields=["layer", "year", "class"],
             aliases=["Layer", "Year", "Class"]
         )
-    ).add_to(interactive_map)
+    ).add_to(mangrove_map)
 
+folium.LatLngPopup().add_to(mangrove_map)
+folium.LayerControl().add_to(mangrove_map)
 
-# Add map controls
-folium.LayerControl(collapsed=False).add_to(interactive_map)
-folium.LatLngPopup().add_to(interactive_map)
+map_result = st_folium(
+    mangrove_map,
+    width="100%",
+    height=720,
+    returned_objects=[
+        "last_clicked",
+        "last_object_clicked"
+    ]
+)
 
 
 # -----------------------------
-# Display map
+# Click information
 # -----------------------------
+if map_result and map_result.get("last_clicked"):
+    clicked = map_result["last_clicked"]
 
+    st.success(
+        f"Selected coordinates: "
+        f"{clicked['lat']:.5f}, {clicked['lng']:.5f}"
+    )
+else:
+    st.info("Click anywhere on the map to select a location.")
+
+
+# -----------------------------
+# Interpretation
+# -----------------------------
 st.markdown(
     """
-    <div class="info-card">
-        <b>Explore the UAE mangrove habitat</b><br>
-        Zoom, pan, and click the green mangrove areas to inspect
-        the reference layer.
+    <div class="info-box">
+    <b>Initial interpretation:</b><br>
+    The selected mangrove area shows a preliminary satellite health score
+    of 27.6/100. NDVI change between the two dates is small, with 99.63%
+    of the mapped mangrove pixels classified as stable.
+    These are satellite indicators and require field or UAV validation.
     </div>
     """,
     unsafe_allow_html=True
 )
 
-map_result = st_folium(
-    interactive_map,
-    width=1600,
-    height=850
+
+# -----------------------------
+# Possible actions
+# -----------------------------
+st.markdown(
+    '<div class="section-label">Recommended next action</div>',
+    unsafe_allow_html=True
 )
 
+action_1, action_2, action_3 = st.columns(3)
 
-# -----------------------------
-# Selected location information
-# -----------------------------
+with action_1:
+    st.markdown("### 🔍 Inspect")
+    st.write("Check the location using UAV or a field team.")
 
-if map_result and map_result.get("last_clicked"):
-    clicked = map_result["last_clicked"]
+with action_2:
+    st.markdown("### 💧 Validate")
+    st.write("Measure salinity and water quality if stress is suspected.")
 
-    latitude = clicked["lat"]
-    longitude = clicked["lng"]
-
-    st.markdown("### Selected Location")
-
-    location_col1, location_col2, location_col3 = st.columns(3)
-
-    with location_col1:
-        st.metric("Latitude", f"{latitude:.4f}")
-
-    with location_col2:
-        st.metric("Longitude", f"{longitude:.4f}")
-
-    with location_col3:
-        st.metric("Reference layer", "GMW 2020")
-
-    st.info(
-        "This location has been selected on the map. "
-        "The next version will connect the selected location "
-        "to Sentinel-2 health indicators and change alerts."
-    )
-else:
-    st.info(
-        "Click anywhere on the map to select a location. "
-        "Click a green polygon to view its GMW information."
-    )
-
-
-# -----------------------------
-# Footer
-# -----------------------------
-
-st.markdown("---")
-
-st.caption(
-    "Reference: Global Mangrove Watch. "
-    "Satellite-derived indicators are preliminary and require validation."
-)
+with action_3:
+    st.markdown("### 🌱 Track")
+    st.write("Compare the health indicator again after 30–90 days.")
