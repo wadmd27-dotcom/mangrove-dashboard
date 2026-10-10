@@ -74,7 +74,7 @@ gmw_data = None
 if os.path.exists(geojson_path):
     with open(geojson_path, "r") as file:
         gmw_data = json.load(file)
-        analysis_path = "images/mangrove_analysis_points.geojson"
+        analysis_path = "images/gcc_mangrove_analysis_points.geojson"
 
 analysis_data = None
 
