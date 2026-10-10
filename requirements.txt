@@ -1,3 +1,7 @@
 streamlit
-folium
 streamlit-folium
+folium
+geopandas
+rasterio
+numpy
+shapely
