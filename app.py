@@ -62,7 +62,11 @@ try:
 except Exception as error:
     st.error(f"Could not load GCC mangrove data: {error}")
     st.stop()
-
+try:
+    uae_ndvi = load_uae_ndvi_summary()
+except Exception as error:
+    st.error(f"Could not load UAE NDVI summary: {error}")
+    st.stop()
 
 st.sidebar.title("🌿 Mangrove Stress Radar")
 
@@ -117,28 +121,27 @@ col1, col2, col3, col4 = st.columns(4)
 
 with col1:
     st.metric(
-        "Health scoring",
+        "UAE NDVI status",
         "Preliminary"
     )
 
 with col2:
     st.metric(
-        "Reference locations",
-        "475 points"
+        "UAE later median NDVI",
+        f"{uae_ndvi['later_median_ndvi']:.4f}"
     )
 
 with col3:
     st.metric(
-        "Analysis period",
-        "2024–2025"
+        "Strong decrease",
+        f"{uae_ndvi['strong_decrease_percent']:.2f}%"
     )
 
 with col4:
     st.metric(
-        "Data status",
-        "Reference map"
+        "Strong increase",
+        f"{uae_ndvi['strong_increase_percent']:.2f}%"
     )
-
 
 st.subheader("Interactive GCC Mangrove Map")
 
