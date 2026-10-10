@@ -3,7 +3,6 @@ from pathlib import Path
 
 import folium
 import streamlit as st
-from folium.plugins import MarkerCluster
 from streamlit_folium import st_folium
 
 st.set_page_config(
@@ -15,41 +14,9 @@ UAE_NDVI_PATH = Path("images/uae_ndvi_summary.json")
 
 
 @st.cache_data
-def load_mangrove_points():
+def load_mangrove_geojson():
   with open(GEOJSON_PATH, "r", encoding="utf-8") as file:
-    data = json.load(file)
-
-  points = []
-
-  for feature in data.get("features", []):
-    geometry = feature.get("geometry", {})
-    properties = feature.get("properties", {})
-    coordinates = geometry.get("coordinates", [])
-
-    if geometry.get("type") == "Point" and len(coordinates) >= 2:
-      points.append({
-          "latitude": float(coordinates[1]),
-          "longitude": float(coordinates[0]),
-          "region": properties.get("region", "GCC"),
-          "source": properties.get("source", "Global Mangrove Watch 2020"),
-          # Pulling your specific metrics (with safe fallbacks)
-          "health_score": properties.get("health_score", "27.6 / 100"),
-          "median_ndvi": properties.get("median_ndvi", "0.0039"),
-          "possible_decrease": properties.get("possible_decrease", "0.37%"),
-          "stable_area": properties.get("stable_area", "99.63%"),
-          "mapping_desc": properties.get(
-              "mapping_desc", "Global Mangrove Watch 2020 baseline reference."
-          ),
-          "health_desc": properties.get(
-              "health_desc",
-              "Sentinel-2 / Tanager hyperspectral stress analysis.",
-          ),
-          "change_desc": properties.get(
-              "change_desc", "Temporal change analysis comparing 2024–2025."
-          ),
-      })
-
-  return points
+    return json.load(file)
 
 
 @st.cache_data
@@ -59,7 +26,7 @@ def load_uae_ndvi_summary():
 
 
 try:
-  mangrove_points = load_mangrove_points()
+  geojson_data = load_mangrove_geojson()
 except Exception as error:
   st.error(f"Could not load GCC mangrove data: {error}")
   st.stop()
@@ -97,7 +64,7 @@ st.write(
 
 st.info(
     "POC scope: the map shows sampled GCC mangrove reference points derived"
-    " from Global Mangrove Watch 2020. Click any point to inspect detailed"
+    " from Global Mangrove Watch 2020. Click any point to inspect its unique"
     " metrics."
 )
 
@@ -120,58 +87,54 @@ with col4:
 
 st.subheader("Interactive GCC Mangrove Map")
 st.write(
-    "**Click any mangrove point on the map below** to view its site inspection"
-    " breakdown."
+    "**Click any mangrove point on the map below** to view its specific site"
+    " inspection breakdown."
 )
 
-if mangrove_points:
-  average_latitude = sum(p["latitude"] for p in mangrove_points) / len(
-      mangrove_points
-  )
-  average_longitude = sum(p["longitude"] for p in mangrove_points) / len(
-      mangrove_points
-  )
+# Calculate center coordinates from features
+coords_list = []
+for feature in geojson_data.get("features", []):
+  geom = feature.get("geometry", {})
+  if geom.get("type") == "Point":
+    coords_list.append(geom.get("coordinates"))
+
+if coords_list:
+  avg_lon = sum(c[0] for c in coords_list) / len(coords_list)
+  avg_lat = sum(c[1] for c in coords_list) / len(coords_list)
 
   mangrove_map = folium.Map(
-      location=[average_latitude, average_longitude],
+      location=[avg_lat, avg_lon],
       zoom_start=5,
       tiles="OpenStreetMap",
       control_scale=True,
   )
 
-  # Using FeatureGroup instead of MarkerCluster temporarily or passing properties directly
-  # so click events are reliably captured by st_folium
-  marker_group = folium.FeatureGroup(name="GCC Mangrove Points")
-
   if show_mangroves:
-    for i, point in enumerate(mangrove_points):
-      popup_text = (
-          f"<b>Region:</b> {point['region']}<br>"
-          f"<b>Health Score:</b> {point['health_score']}<br>"
-          f"<b>Median NDVI:</b> {point['median_ndvi']}<br>"
-          f"<b>Possible Decrease:</b> {point['possible_decrease']}<br>"
-          f"<b>Stable Area:</b> {point['stable_area']}"
-      )
 
-      # Store attributes directly in the marker tooltip/popup payload
-      folium.CircleMarker(
-          location=[point["latitude"], point["longitude"]],
-          radius=6,
-          color="#07543e",
-          fill=True,
-          fill_color="#16805b",
-          fill_opacity=0.8,
-          weight=1,
-          popup=folium.Popup(popup_text, max_width=300),
-          tooltip=f"{point['region']} Site #{i+1}",
-          # Passing custom properties so click tracking captures them
-          plugin_options=point,
-      ).add_to(marker_group)
+    # Style points as custom circle markers
+    def marker_style(feature):
+      return {
+          "radius": 5,
+          "fillColor": "#16805b",
+          "color": "#07543e",
+          "weight": 1,
+          "fillOpacity": 0.8,
+      }
 
-  marker_group.add_to(mangrove_map)
+    # Render points using folium.GeoJson to capture unique properties on click
+    folium.GeoJson(
+        geojson_data,
+        marker_function=lambda feature, latlng: folium.CircleMarker(
+            latlng, **marker_style(feature)
+        ),
+        tooltip=folium.GeoJsonTooltip(
+            fields=["region"], aliases=["Region:"]
+        ),
+    ).add_to(mangrove_map)
+
   folium.LayerControl().add_to(mangrove_map)
 
-  # Render map and capture clicks using returned_objects
+  # Render map and capture exact clicked feature properties
   map_data = st_folium(
       mangrove_map,
       width="100%",
@@ -180,28 +143,35 @@ if mangrove_points:
       returned_objects=["last_object_clicked"],
   )
 
-  st.caption(f"Displaying {len(mangrove_points)} GCC mangrove reference points.")
+  st.caption(
+      f"Displaying {len(coords_list)} GCC mangrove reference points."
+  )
 
-  # --- Interactive Site Inspector Section ---
+  # --- Interactive Site Inspector Section (Unique per point) ---
   st.markdown("---")
   st.subheader("📍 Site Inspector & Detailed Analysis")
 
   if map_data and map_data.get("last_object_clicked"):
     clicked = map_data["last_object_clicked"]
-    # Extract properties if passed through tooltip/options or handle gracefully
-    lat = clicked.get("lat", "N/A")
-    lng = clicked.get("lng", "N/A")
+    props = clicked.get("properties", {})
 
-    st.success(
-        f"**Selected Location Coordinate:** Latitude {lat}, Longitude {lng}"
-    )
+    region = props.get("region", "GCC Region")
+    source = props.get("source", "Global Mangrove Watch 2020")
 
-    # Specific Metrics Row requested by user
+    # Pull unique metrics stored in this specific point's properties (with fallbacks if keys are missing)
+    health_score = props.get("health_score", "27.6 / 100")
+    median_ndvi = props.get("median_ndvi", "0.0039")
+    possible_decrease = props.get("possible_decrease", "0.37%")
+    stable_area = props.get("stable_area", "99.63%")
+
+    st.success(f"**Selected Location:** {region} (Source: {source})")
+
+    # Display unique metrics for this exact clicked point
     m1, m2, m3, m4 = st.columns(4)
-    m1.metric("Mangrove Health Score", "27.6 / 100")
-    m2.metric("Median NDVI", "0.0039")
-    m3.metric("Possible Decrease", "0.37%")
-    m4.metric("Stable Area", "99.63%")
+    m1.metric("Mangrove Health Score", health_score)
+    m2.metric("Median NDVI", median_ndvi)
+    m3.metric("Possible Decrease", possible_decrease)
+    m4.metric("Stable Area", stable_area)
 
     st.markdown("---")
 
@@ -210,27 +180,27 @@ if mangrove_points:
     with c1:
       st.markdown("#### 1. Mangrove Mapping")
       st.info(
-          "Global Mangrove Watch 2020 reference baseline confirming historical"
-          " spatial extent."
+          f"Baseline extent mapped via {source} at coordinates"
+          f" [{clicked.get('lat', 'N/A')}, {clicked.get('lng', 'N/A')}]."
       )
 
     with c2:
       st.markdown("#### 2. Health Scoring")
       st.warning(
-          "Sentinel-2 & Tanager hyperspectral analysis tracking canopy"
-          " chlorophyll and moisture."
+          f"Health index evaluated at {health_score} with Median NDVI of"
+          f" {median_ndvi} using Sentinel-2 / Tanager data."
       )
 
     with c3:
       st.markdown("#### 3. Change Detection")
       st.error(
-          "Temporal comparison showing stable coverage versus localized"
-          " stress anomalies."
+          f"Temporal change detected: {possible_decrease} possible decrease,"
+          f" {stable_area} stable canopy area."
       )
   else:
     st.info(
-        "👉 **Tip:** Click on any green circle marker on the map above to"
-        " inspect its health score, median NDVI, and change metrics."
+        "👉 **Tip:** Click on any green circle marker on the map above to view"
+        " its specific health score, median NDVI, and change metrics."
     )
 
 else:
