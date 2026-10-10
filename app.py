@@ -620,16 +620,25 @@ with tab1:
                             "Calculated UAE numerical indicators"
                         )
 
-                        st.write(f"• **NDVI classification:** {ndvi_data.get('interpretation', 'Preliminary')}")
-                        st.write(f"• **NDVI baseline median:** {ndvi_data.get('baseline_median', 0.0):.4f}")
-                        st.write(f"• **NDVI later median:** {ndvi_data.get('later_median', 0.0):.4f}")
-                        st.write(f"• **NDVI change:** {ndvi_data.get('scene_level_change', 0.0):.4f}")
-                        st.write(f"• **NDVI strong decrease:** {ndvi_data.get('strong_decrease_percent', 0.0):.2f}%")
-                        st.write(f"• **NDWI classification:** {ndwi_data.get('interpretation', 'Preliminary')}")
-                        st.write(f"• **NDWI baseline median:** {ndwi_data.get('baseline_median', 0.0):.4f}")
-                        st.write(f"• **NDWI later median:** {ndwi_data.get('later_median', 0.0):.4f}")
-                        st.write(f"• **NDWI change:** {ndwi_data.get('scene_level_change', 0.0):.4f}")
+                        st.write(
+    "• **NDVI classification:** "
+    f"{ndvi_data.get('interpretation', 'Preliminary')}"
+)
 
+st.write(
+    f"• **NDVI baseline median:** "
+    f"{ndvi_data.get('baseline_median', 0.0):.4f}"
+)
+
+st.write(
+    f"• **NDVI later median:** "
+    f"{ndvi_data.get('later_median', 0.0):.4f}"
+)
+
+st.write(
+    f"• **NDVI change:** "
+    f"{ndvi_data.get('scene_level_change', 0.0):.4f}"
+)
                     else:
 
                         st.info(
