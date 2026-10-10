@@ -593,89 +593,47 @@ with tab1:
                         f"{matched_point['source']}"
                     )
 
-                    st.markdown(
-    "### 🧬 Stress fingerprint"
-)
+                    if selected_country == "UAE":
 
-if selected_country == "UAE":
+                        st.write(
+                            f"**Baseline date:** "
+                            f"{uae_indices.get('baseline_date', 'N/A')}"
+                        )
 
-    st.success(
-        "Calculated UAE numerical indicators"
-    )
+                        st.write(
+                            f"**Later date:** "
+                            f"{uae_indices.get('later_date', 'N/A')}"
+                        )
 
-    st.write(
-        "• **NDVI classification:** "
-        f"{ndvi_data.get('interpretation', 'Preliminary')}"
-    )
+                        st.write(
+                            f"**Common tile:** "
+                            f"{uae_indices.get('common_tile', 'N/A')}"
+                        )
 
-    st.write(
-        f"• **NDVI baseline median:** "
-        f"{ndvi_data.get('baseline_median', 0.0):.4f}"
-    )
+                    st.markdown("### 🧬 Stress fingerprint")
+                    if selected_country == "UAE":
+                        st.success("Calculated UAE numerical indicators")
+                        st.write("• **NDVI classification:** " f"{ndvi_data.get('interpretation', 'Preliminary')}")
+                        st.write(f"• **NDVI baseline median:** " f"{ndvi_data.get('baseline_median', 0.0):.4f}")
+                        st.write(f"• **NDVI later median:** " f"{ndvi_data.get('later_median', 0.0):.4f}")
+                        st.write(f"• **NDVI change:** " f"{ndvi_data.get('scene_level_change', 0.0):.4f}")
+                        st.write("• **NDWI classification:** " f"{ndwi_data.get('interpretation', 'Preliminary')}")
+                        st.write(f"• **NDWI baseline median:** " f"{ndwi_data.get('baseline_median', 0.0):.4f}")
+                        st.write(f"• **NDWI later median:** " f"{ndwi_data.get('later_median', 0.0):.4f}")
+                        st.write(f"• **NDWI change:** " f"{ndwi_data.get('scene_level_change', 0.0):.4f}")
+                    else:
+                        st.info(f"Stress fingerprint numerical values are not yet calculated for {selected_country}.")
+                        st.write("• **NDVI:** Planned")
+                        st.write("• **NDWI:** Planned")
+                        st.write("• **Turbidity/NDCI:** Planned")
+                        st.write("• **Fragmentation or canopy thinning:** Planned")
+                        st.write("• **Planet Tanager anomaly:** Planned")
 
-    st.write(
-        f"• **NDVI later median:** "
-        f"{ndvi_data.get('later_median', 0.0):.4f}"
-    )
+                    st.write(
+                        "**Confidence and uncertainty:** "
+                        f"{'UAE values are preliminary scene-level indicators.' if selected_country == 'UAE' else 'Region requires separate processing.'}"
+                    )
 
-    st.write(
-        f"• **NDVI change:** "
-        f"{ndvi_data.get('scene_level_change', 0.0):.4f}"
-    )
-
-    st.write(
-        "• **NDWI classification:** "
-        f"{ndwi_data.get('interpretation', 'Preliminary')}"
-    )
-
-    st.write(
-        f"• **NDWI baseline median:** "
-        f"{ndwi_data.get('baseline_median', 0.0):.4f}"
-    )
-
-    st.write(
-        f"• **NDWI later median:** "
-        f"{ndwi_data.get('later_median', 0.0):.4f}"
-    )
-
-    st.write(
-        f"• **NDWI change:** "
-        f"{ndwi_data.get('scene_level_change', 0.0):.4f}"
-    )
-
-else:
-
-    st.info(
-        "Stress fingerprint numerical values are not yet "
-        f"calculated for {selected_country}."
-    )
-
-    st.write(
-        "• **NDVI:** Planned"
-    )
-
-    st.write(
-        "• **NDWI:** Planned"
-    )
-
-
-st.write(
-    "• **Turbidity/NDCI:** Planned"
-)
-
-st.write(
-    "• **Fragmentation or canopy thinning:** Planned"
-)
-
-st.write(
-    "• **Planet Tanager anomaly:** Planned"
-)
-
-st.write(
-    "**Confidence and uncertainty:** "
-    "UAE values are preliminary scene-level indicators. "
-    "Other GCC regions require separate processing."
-)
                 with panel_col2:
 
                     st.markdown(
@@ -852,7 +810,9 @@ st.markdown(
         padding-bottom: 20px;
     ">
         © 2026 GCC Mangrove Stress Radar.
-        All rights reserved.
+        All rights reserved. <br>
+        Mangrove restoration and ecological insights adapted from 
+        <a href="https://nmdc-group.com/ar/dredging-and-marine/mangroves-abu-dhabi/" target="_blank" style="color: #2ecc71;">NMDC Group (Mangroves Abu Dhabi)</a>.
     </div>
     """,
     unsafe_allow_html=True
