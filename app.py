@@ -215,19 +215,47 @@ map_result = st_folium(
 
 
 # -----------------------------
-# Click information
+# -----------------------------
+# Selected location report
 # -----------------------------
 if map_result and map_result.get("last_clicked"):
-    clicked = map_result["last_clicked"]
+    selected_location = map_result["last_clicked"]
+
+    latitude = selected_location["lat"]
+    longitude = selected_location["lng"]
 
     st.success(
-        f"Selected coordinates: "
-        f"{clicked['lat']:.5f}, {clicked['lng']:.5f}"
+        f"Selected location: "
+        f"{latitude:.5f}, {longitude:.5f}"
     )
+
+    st.markdown(
+        '<div class="section-label">Selected area report</div>',
+        unsafe_allow_html=True
+    )
+
+    report_1, report_2, report_3, report_4 = st.columns(4)
+
+    with report_1:
+        st.metric("Health score", "27.6 / 100")
+
+    with report_2:
+        st.metric("Median NDVI", "0.0039")
+
+    with report_3:
+        st.metric("Possible change", "Stable")
+
+    with report_4:
+        st.metric("Confidence", "Preliminary")
+
+    st.info(
+        "This location is within the GMW mangrove reference extent. "
+        "Sentinel-2 indicators show mostly stable conditions. "
+        "Field or UAV inspection is recommended before taking action."
+    )
+
 else:
     st.info("Click anywhere on the map to select a location.")
-
-
 # -----------------------------
 # Interpretation
 # -----------------------------
