@@ -5,7 +5,7 @@ import folium
 import streamlit as st
 from streamlit_folium import st_folium
 
-geojson_path = "images/gmw_uae_extent.geojson"
+geojson_path = "images/gcc_mangrove_analysis_points.geojson"
 st.set_page_config(
     page_title="Mangrove Stress Radar",
     page_icon="🌿",
