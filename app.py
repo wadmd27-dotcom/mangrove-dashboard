@@ -134,7 +134,9 @@ gdf = load_mangrove_data()
 
 # --- Initialize Folium Map ---
 m = folium.Map(
-    location=current_center, zoom_start=current_zoom, tiles="CartoDB positron"
+    location=current_center,
+    zoom_start=current_zoom,
+    tiles="OpenStreetMap",  # <-- Change this to OpenStreetMap
 )
 
 # Color map dictionary
