@@ -87,7 +87,12 @@ st.write(
     "Detect emerging mangrove stress before visible habitat loss, "
     "explain the possible signal, and support field verification."
 )
-
+st.info(
+    "POC scope: the map shows 475 sampled GCC mangrove reference "
+    "points derived from Global Mangrove Watch 2020. Health and "
+    "change indicators are preliminary and require multi-tile "
+    "Sentinel-2 processing and field validation for full GCC coverage."
+)
 
 col1, col2, col3, col4 = st.columns(4)
 
