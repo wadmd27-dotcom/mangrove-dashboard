@@ -33,7 +33,7 @@ UAE_INDICES_PATH = Path(
 
 
 # ---------------------------------------------------------
-# Background styling
+# Background
 # ---------------------------------------------------------
 
 if BG_IMAGE_PATH.exists():
@@ -115,7 +115,7 @@ st.markdown(
 
 
 # ---------------------------------------------------------
-# Approximate GCC country boundaries
+# Approximate GCC boundaries
 # ---------------------------------------------------------
 
 GCC_COUNTRY_BOUNDS = {
@@ -250,7 +250,8 @@ ndvi_data = uae_indices.get(
 
 ndwi_data = uae_indices.get(
     "ndwi",
-    {})
+    {}
+)
 
 
 # ---------------------------------------------------------
@@ -321,7 +322,7 @@ st.sidebar.markdown(
 
 
 # ---------------------------------------------------------
-# Main header
+# Header
 # ---------------------------------------------------------
 
 st.title(
@@ -337,14 +338,14 @@ st.write(
 st.info(
     "POC scope: the map shows sampled GCC mangrove "
     "reference points derived from Global Mangrove Watch "
-    "2020. NDVI and NDWI are preliminary scene-level "
-    "indicators and require spatial masking and field "
-    "validation before operational use."
+    "2020. Calculated NDVI and NDWI indicators are "
+    "currently available only for UAE."
 )
 
 
 # ---------------------------------------------------------
 # Summary metrics
+# These are UAE-only metrics
 # ---------------------------------------------------------
 
 col1, col2, col3, col4 = st.columns(4)
@@ -352,7 +353,7 @@ col1, col2, col3, col4 = st.columns(4)
 with col1:
 
     st.metric(
-        "NDVI status",
+        "UAE NDVI status",
         uae_indices.get(
             "status",
             "Preliminary"
@@ -362,34 +363,33 @@ with col1:
 with col2:
 
     st.metric(
-        "Later median NDVI",
+        "UAE later median NDVI",
         f"{ndvi_data.get('later_median', 0.0):.4f}"
     )
 
 with col3:
 
     st.metric(
-        "NDVI scene change",
+        "UAE NDVI scene change",
         f"{ndvi_data.get('scene_level_change', 0.0):.4f}"
     )
 
 with col4:
 
     st.metric(
-        "NDWI scene change",
+        "UAE NDWI scene change",
         f"{ndwi_data.get('scene_level_change', 0.0):.4f}"
     )
-
-
-st.markdown(
-    "<br>",
-    unsafe_allow_html=True
-)
 
 
 # ---------------------------------------------------------
 # Tabs
 # ---------------------------------------------------------
+
+st.markdown(
+    "<br>",
+    unsafe_allow_html=True
+)
 
 tab1, tab2 = st.tabs(
     [
@@ -453,6 +453,7 @@ with tab1:
             else 5
         )
 
+        # OpenStreetMap does not require an API key
         mangrove_map = folium.Map(
             location=[
                 average_latitude,
@@ -564,6 +565,10 @@ with tab1:
 
             if matched_point:
 
+                selected_country = matched_point[
+                    "region"
+                ]
+
                 st.success(
                     "Selected location — "
                     f"Latitude: "
@@ -582,7 +587,7 @@ with tab1:
 
                     st.write(
                         f"**Region:** "
-                        f"{matched_point['region']}"
+                        f"{selected_country}"
                     )
 
                     st.write(
@@ -590,71 +595,87 @@ with tab1:
                         f"{matched_point['source']}"
                     )
 
-                    st.write(
-                        f"**Baseline date:** "
-                        f"{uae_indices.get('baseline_date', 'N/A')}"
-                    )
+                    if selected_country == "UAE":
 
-                    st.write(
-                        f"**Later date:** "
-                        f"{uae_indices.get('later_date', 'N/A')}"
-                    )
+                        st.write(
+                            f"**Baseline date:** "
+                            f"{uae_indices.get('baseline_date', 'N/A')}"
+                        )
 
-                    st.write(
-                        f"**Common tile:** "
-                        f"{uae_indices.get('common_tile', 'N/A')}"
-                    )
+                        st.write(
+                            f"**Later date:** "
+                            f"{uae_indices.get('later_date', 'N/A')}"
+                        )
 
-                    st.write(
-                        "**Confidence and uncertainty:** "
-                        "Preliminary scene-level indicator; "
-                        "spatial masking and field validation "
-                        "are required."
-                    )
+                        st.write(
+                            f"**Common tile:** "
+                            f"{uae_indices.get('common_tile', 'N/A')}"
+                        )
 
                     st.markdown(
                         "### 🧬 Stress fingerprint"
                     )
 
-                    st.write(
-                        "• **NDVI:** "
-                        f"{ndvi_data.get('interpretation', 'Preliminary')}"
-                    )
+                    if selected_country == "UAE":
 
-                    st.write(
-                        f"• **NDVI baseline median:** "
-                        f"{ndvi_data.get('baseline_median', 0.0):.4f}"
-                    )
+                        st.success(
+                            "Calculated UAE scene-level indicators"
+                        )
 
-                    st.write(
-                        f"• **NDVI later median:** "
-                        f"{ndvi_data.get('later_median', 0.0):.4f}"
-                    )
+                        st.write(
+                            "• **NDVI:** "
+                            f"{ndvi_data.get('interpretation', 'Preliminary')}"
+                        )
 
-                    st.write(
-                        f"• **NDVI change:** "
-                        f"{ndvi_data.get('scene_level_change', 0.0):.4f}"
-                    )
+                        st.write(
+                            f"• **NDVI baseline median:** "
+                            f"{ndvi_data.get('baseline_median', 0.0):.4f}"
+                        )
 
-                    st.write(
-                        "• **NDWI:** "
-                        f"{ndwi_data.get('interpretation', 'Preliminary')}"
-                    )
+                        st.write(
+                            f"• **NDVI later median:** "
+                            f"{ndvi_data.get('later_median', 0.0):.4f}"
+                        )
 
-                    st.write(
-                        f"• **NDWI baseline median:** "
-                        f"{ndwi_data.get('baseline_median', 0.0):.4f}"
-                    )
+                        st.write(
+                            f"• **NDVI change:** "
+                            f"{ndvi_data.get('scene_level_change', 0.0):.4f}"
+                        )
 
-                    st.write(
-                        f"• **NDWI later median:** "
-                        f"{ndwi_data.get('later_median', 0.0):.4f}"
-                    )
+                        st.write(
+                            "• **NDWI:** "
+                            f"{ndwi_data.get('interpretation', 'Preliminary')}"
+                        )
 
-                    st.write(
-                        f"• **NDWI change:** "
-                        f"{ndwi_data.get('scene_level_change', 0.0):.4f}"
-                    )
+                        st.write(
+                            f"• **NDWI baseline median:** "
+                            f"{ndwi_data.get('baseline_median', 0.0):.4f}"
+                        )
+
+                        st.write(
+                            f"• **NDWI later median:** "
+                            f"{ndwi_data.get('later_median', 0.0):.4f}"
+                        )
+
+                        st.write(
+                            f"• **NDWI change:** "
+                            f"{ndwi_data.get('scene_level_change', 0.0):.4f}"
+                        )
+
+                    else:
+
+                        st.info(
+                            f"Stress fingerprint is not yet "
+                            f"calculated for {selected_country}."
+                        )
+
+                        st.write(
+                            "• **NDVI:** Planned"
+                        )
+
+                        st.write(
+                            "• **NDWI:** Planned"
+                        )
 
                     st.write(
                         "• **Turbidity/NDCI:** Planned"
@@ -667,6 +688,13 @@ with tab1:
 
                     st.write(
                         "• **Planet Tanager anomaly:** Planned"
+                    )
+
+                    st.write(
+                        "**Confidence and uncertainty:** "
+                        "UAE values are preliminary scene-level "
+                        "indicators. Other GCC regions require "
+                        "separate processing."
                     )
 
                 with panel_col2:
@@ -715,10 +743,19 @@ with tab1:
                         "Pending"
                     )
 
-                    st.write(
-                        "• **Pixel-level change:** "
-                        "Not available for this scene pair"
-                    )
+                    if selected_country == "UAE":
+
+                        st.write(
+                            "• **Pixel-level change:** "
+                            "Not available for this scene pair"
+                        )
+
+                    else:
+
+                        st.write(
+                            "• **Country-specific indices:** "
+                            "Not calculated yet"
+                        )
 
                     st.write(
                         "• **Carbon, biodiversity and "
@@ -772,20 +809,20 @@ with tab2:
         )
 
         st.success(
-            "Baseline mapping uses Global Mangrove Watch "
-            "2020 reference data."
+            "UAE NDVI and NDWI are available as preliminary "
+            "scene-level indicators."
         )
 
         st.info(
-            "NDVI increased at the scene level between "
-            "the selected Sentinel-2 dates."
+            "Other GCC countries currently show planned "
+            "indicators until country-specific Sentinel-2 "
+            "processing is completed."
         )
 
         st.warning(
-            "NDWI decreased at the scene level. This may "
-            "reflect water, tidal, seasonal, atmospheric, "
-            "or surface-condition differences and requires "
-            "validation."
+            "Turbidity, fragmentation, canopy thinning, "
+            "Planet Tanager anomalies, and field validation "
+            "remain future POC steps."
         )
 
     with insight_col2:
@@ -817,7 +854,7 @@ with tab2:
         )
 
         st.write(
-            "• Pixel-level change available: No"
+            "• Calculated country: UAE only"
         )
 
 
