@@ -1,3 +1,4 @@
+import base64
 import json
 from pathlib import Path
 
@@ -13,53 +14,70 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- Custom CSS for Authentic Mangrove Forest Background & UI Styling ---
-st.markdown(
-    """
-    <style>
-    .stApp {
-        background: linear-gradient(rgba(10, 30, 20, 0.82), rgba(15, 35, 25, 0.78)), 
-                    url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1920&q=80');
+# --- Load and Encode Local Mangrove Background Image ---
+BG_IMAGE_PATH = Path("images/mangrove_bg.jpg")
+bg_css_rule = ""
+
+if BG_IMAGE_PATH.exists():
+    with open(BG_IMAGE_PATH, "rb") as img_file:
+        encoded_bg = base64.b64encode(img_file.read()).decode()
+    bg_css_rule = f"""
+    .stApp {{
+        background: linear-gradient(rgba(10, 30, 20, 0.78), rgba(15, 35, 25, 0.75)), 
+                    url('data:image/jpeg;base64,{encoded_bg}');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
         background-color: #0a1e14;
+    }}
+    """
+else:
+    bg_css_rule = """
+    .stApp {
+        background-color: #0a1e14;
     }
+    """
+
+# --- Custom CSS for Styling ---
+st.markdown(
+    f"""
+    <style>
+    {bg_css_rule}
     
     /* Enforce crisp green/white text contrast */
-    h1, h2, h3, h4, h5, h6, p, span, label, div, .stMarkdown {
+    h1, h2, h3, h4, h5, h6, p, span, label, div, .stMarkdown {{
         color: #e2ede5 !important;
-    }
+    }}
     
     /* Glassmorphism metric cards & inspection panels */
-    [data-testid="stMetric"] {
+    [data-testid="stMetric"] {{
         background-color: rgba(20, 50, 35, 0.85) !important;
         border: 1px solid rgba(50, 150, 100, 0.5) !important;
         padding: 15px;
         border-radius: 12px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-    }
+    }}
     
     /* Sidebar styling */
-    [data-testid="stSidebar"] {
+    [data-testid="stSidebar"] {{
         background-color: rgba(10, 25, 18, 0.95) !important;
         border-right: 1px solid rgba(50, 150, 100, 0.3) !important;
-    }
+    }}
     
     /* Tabs styling */
-    .stTabs [data-baseweb="tab-list"] {
+    .stTabs [data-baseweb="tab-list"] {{
         gap: 10px;
-    }
-    .stTabs [data-baseweb="tab"] {
+    }}
+    .stTabs [data-baseweb="tab"] {{
         background-color: rgba(20, 50, 35, 0.7);
         border-radius: 8px 8px 0px 0px;
         color: #e2ede5 !important;
         padding: 10px 20px;
-    }
-    .stTabs [aria-selected="true"] {
+    }}
+    .stTabs [aria-selected="true"] {{
         background-color: rgba(30, 90, 60, 0.95) !important;
         font-weight: bold;
-    }
+    }}
     </style>
     """,
     unsafe_allow_html=True
@@ -364,7 +382,7 @@ st.markdown(
     """
     <div style="text-align: center; color: #b0c4b1; font-size: 13px; padding-bottom: 20px;">
         © 2026 GCC Mangrove Stress Radar. All rights reserved. <br>
-        Background and ecological inspiration adapted from <a href="https://uae-wavesclub.com/why-mangroves-are-important-in-abu-dhabi/" target="_blank" style="color: #2ecc71;">UAE Waves Club</a>.
+        Background and ecological inspiration adapted from <a href="https://uae-wavesclub.com/why-mangroves-are-important-in-abu-dhabi/" target="_blank" style="color: #2ecc71;">UAE Waves Club</a>[cite: 6].
     </div>
     """,
     unsafe_allow_html=True
