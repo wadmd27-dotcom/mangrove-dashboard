@@ -345,7 +345,6 @@ st.info(
 
 # ---------------------------------------------------------
 # Summary metrics
-# These are UAE-only metrics
 # ---------------------------------------------------------
 
 col1, col2, col3, col4 = st.columns(4)
@@ -453,7 +452,6 @@ with tab1:
             else 5
         )
 
-        # OpenStreetMap does not require an API key
         mangrove_map = folium.Map(
             location=[
                 average_latitude,
@@ -619,11 +617,11 @@ with tab1:
                     if selected_country == "UAE":
 
                         st.success(
-                            "Calculated UAE scene-level indicators"
+                            "Calculated UAE numerical indicators"
                         )
 
                         st.write(
-                            "• **NDVI:** "
+                            "• **NDVI classification:** "
                             f"{ndvi_data.get('interpretation', 'Preliminary')}"
                         )
 
@@ -643,7 +641,12 @@ with tab1:
                         )
 
                         st.write(
-                            "• **NDWI:** "
+                            "• **NDVI strong decrease:** "
+                            f"{ndvi_data.get('strong_decrease_percent', 0.0):.2f}%"
+                        )
+
+                        st.write(
+                            "• **NDWI classification:** "
                             f"{ndwi_data.get('interpretation', 'Preliminary')}"
                         )
 
@@ -654,227 +657,4 @@ with tab1:
 
                         st.write(
                             f"• **NDWI later median:** "
-                            f"{ndwi_data.get('later_median', 0.0):.4f}"
-                        )
-
-                        st.write(
-                            f"• **NDWI change:** "
-                            f"{ndwi_data.get('scene_level_change', 0.0):.4f}"
-                        )
-
-                    else:
-
-                        st.info(
-                            f"Stress fingerprint is not yet "
-                            f"calculated for {selected_country}."
-                        )
-
-                        st.write(
-                            "• **NDVI:** Planned"
-                        )
-
-                        st.write(
-                            "• **NDWI:** Planned"
-                        )
-
-                    st.write(
-                        "• **Turbidity/NDCI:** Planned"
-                    )
-
-                    st.write(
-                        "• **Fragmentation or canopy thinning:** "
-                        "Planned"
-                    )
-
-                    st.write(
-                        "• **Planet Tanager anomaly:** Planned"
-                    )
-
-                    st.write(
-                        "**Confidence and uncertainty:** "
-                        "UAE values are preliminary scene-level "
-                        "indicators. Other GCC regions require "
-                        "separate processing."
-                    )
-
-                with panel_col2:
-
-                    st.markdown(
-                        "### ⚠️ Possible cause"
-                    )
-
-                    st.write(
-                        "Possible water stress, sediment or "
-                        "pollution, clearing, construction, "
-                        "storm damage, or restoration failure."
-                    )
-
-                    st.caption(
-                        "This is a possible explanation, "
-                        "not a proven diagnosis."
-                    )
-
-                    st.markdown(
-                        "### Recommended action"
-                    )
-
-                    st.info(
-                        "1. Inspect by UAV or field team\n\n"
-                        "2. Test salinity and water quality\n\n"
-                        "3. Check restoration plots\n\n"
-                        "4. Prioritize protection\n\n"
-                        "5. Replant only if the site is suitable"
-                    )
-
-                    st.markdown(
-                        "### Outcome tracking"
-                    )
-
-                    st.write(
-                        "• **Alert verification:** Pending"
-                    )
-
-                    st.write(
-                        "• **Intervention:** Not recorded"
-                    )
-
-                    st.write(
-                        "• **Recovery after 30/60/90 days:** "
-                        "Pending"
-                    )
-
-                    if selected_country == "UAE":
-
-                        st.write(
-                            "• **Pixel-level change:** "
-                            "Not available for this scene pair"
-                        )
-
-                    else:
-
-                        st.write(
-                            "• **Country-specific indices:** "
-                            "Not calculated yet"
-                        )
-
-                    st.write(
-                        "• **Carbon, biodiversity and "
-                        "coastal-protection value at risk:** "
-                        "To be estimated"
-                    )
-
-            else:
-
-                st.info(
-                    "The selected location could not be "
-                    "matched to a reference point."
-                )
-
-        else:
-
-            st.info(
-                "👉 Click any green circle marker on the "
-                "map to view its detailed stress inspection "
-                "breakdown here."
-            )
-
-    else:
-
-        st.warning(
-            "No GCC mangrove points were found."
-        )
-
-
-# ---------------------------------------------------------
-# Regional insights
-# ---------------------------------------------------------
-
-with tab2:
-
-    st.subheader(
-        "📊 Regional Ecosystem Health Summary"
-    )
-
-    st.write(
-        "Overview of preliminary monitoring indices "
-        "across the Arabian Gulf and Red Sea coasts."
-    )
-
-    insight_col1, insight_col2 = st.columns(2)
-
-    with insight_col1:
-
-        st.markdown(
-            "### 🌿 Key observations"
-        )
-
-        st.success(
-            "UAE NDVI and NDWI are available as preliminary "
-            "scene-level indicators."
-        )
-
-        st.info(
-            "Other GCC countries currently show planned "
-            "indicators until country-specific Sentinel-2 "
-            "processing is completed."
-        )
-
-        st.warning(
-            "Turbidity, fragmentation, canopy thinning, "
-            "Planet Tanager anomalies, and field validation "
-            "remain future POC steps."
-        )
-
-    with insight_col2:
-
-        st.markdown(
-            "### 🛰️ Technology stack"
-        )
-
-        st.write(
-            "• Satellite source: Sentinel-2 L2A"
-        )
-
-        st.write(
-            "• Hyperspectral source: Planet Tanager"
-        )
-
-        st.write(
-            "• Reference layer: Global Mangrove Watch 2020"
-        )
-
-        st.write(
-            "• Target area: UAE, Saudi Arabia, Oman, "
-            "Qatar, Bahrain and Kuwait"
-        )
-
-        st.write(
-            "• POC reference points: "
-            f"{len(mangrove_points)}"
-        )
-
-        st.write(
-            "• Calculated country: UAE only"
-        )
-
-
-# ---------------------------------------------------------
-# Footer
-# ---------------------------------------------------------
-
-st.markdown("---")
-
-st.markdown(
-    """
-    <div style="
-        text-align: center;
-        color: #b0c4b1;
-        font-size: 13px;
-        padding-bottom: 20px;
-    ">
-        © 2026 GCC Mangrove Stress Radar.
-        All rights reserved.
-    </div>
-    """,
-    unsafe_allow_html=True
-)
+                            f"{ndwi_data.get('later_median',
