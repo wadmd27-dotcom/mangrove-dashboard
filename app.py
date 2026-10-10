@@ -155,12 +155,35 @@ if mangrove_points:
 
     if show_mangroves:
         for point in mangrove_points:
-            popup_text = (
-                f"<b>Region:</b> {point['region']}<br>"
-                f"<b>Source:</b> {point['source']}<br>"
-                f"<b>Latitude:</b> {point['latitude']:.5f}<br>"
-                f"<b>Longitude:</b> {point['longitude']:.5f}"
-            )
+           popup_text = (
+    f"<b>Region:</b> {point['region']}<br>"
+    f"<b>Source:</b> {point['source']}<br>"
+    f"<b>Latitude:</b> {point['latitude']:.5f}<br>"
+    f"<b>Longitude:</b> {point['longitude']:.5f}<br><br>"
+
+    "<b>Stress fingerprint</b><br>"
+    "NDVI: Preliminary<br>"
+    "NDWI: Planned<br>"
+    "Turbidity/NDCI: Planned<br>"
+    "Fragmentation: Planned<br>"
+    "Planet Tanager anomaly: Planned<br><br>"
+
+    "<b>Possible cause</b><br>"
+    "Requires field validation<br><br>"
+
+    "<b>Confidence and uncertainty</b><br>"
+    "Preliminary reference point; multi-date validation required<br><br>"
+
+    "<b>Recommended action</b><br>"
+    "Inspect by UAV or field team<br>"
+    "Test salinity and water quality<br>"
+    "Prioritize protection<br><br>"
+
+    "<b>Outcome tracking</b><br>"
+    "Verification: Pending<br>"
+    "Intervention: Not recorded<br>"
+    "Recovery after 30/60/90 days: Pending"
+)
 
             folium.CircleMarker(
                 location=[
