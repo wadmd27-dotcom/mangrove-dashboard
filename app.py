@@ -13,36 +13,37 @@ st.set_page_config(
     layout="wide"
 )
 
-# --- Custom CSS for Abu Dhabi Mangroves Background & UI Styling ---
+# --- Custom CSS for Abu Dhabi Mangroves Background & Inspection UI ---
 st.markdown(
     """
     <style>
     .stApp {
         background: linear-gradient(rgba(10, 30, 20, 0.85), rgba(15, 35, 25, 0.82)), 
-                    url('https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&w=1920&q=80');
+                    url('https://images.unsplash.com/photo-1584551246679-0daf3d275d0f?auto=format&fit=crop&w=1920&q=80');
         background-size: cover;
         background-position: center;
         background-attachment: fixed;
+        background-color: #0a1e14;
     }
     
-    /* Readable text styling */
-    h1, h2, h3, h4, h5, h6, p, span, label, .stMarkdown {
+    /* Enforce crisp green/white text contrast across all elements */
+    h1, h2, h3, h4, h5, h6, p, span, label, div, .stMarkdown {
         color: #e2ede5 !important;
     }
     
     /* Glassmorphism metric cards & inspection panels */
     [data-testid="stMetric"] {
-        background-color: rgba(20, 50, 35, 0.75);
-        border: 1px solid rgba(50, 150, 100, 0.4);
+        background-color: rgba(20, 50, 35, 0.85) !important;
+        border: 1px solid rgba(50, 150, 100, 0.5) !important;
         padding: 15px;
         border-radius: 12px;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
     }
     
     /* Sidebar styling */
     [data-testid="stSidebar"] {
-        background-color: rgba(10, 25, 18, 0.95);
-        border-right: 1px solid rgba(50, 150, 100, 0.2);
+        background-color: rgba(10, 25, 18, 0.95) !important;
+        border-right: 1px solid rgba(50, 150, 100, 0.3) !important;
     }
     
     /* Tabs styling */
@@ -50,13 +51,13 @@ st.markdown(
         gap: 10px;
     }
     .stTabs [data-baseweb="tab"] {
-        background-color: rgba(20, 50, 35, 0.6);
+        background-color: rgba(20, 50, 35, 0.7);
         border-radius: 8px 8px 0px 0px;
-        color: #e2ede5;
+        color: #e2ede5 !important;
         padding: 10px 20px;
     }
     .stTabs [aria-selected="true"] {
-        background-color: rgba(30, 90, 60, 0.9) !important;
+        background-color: rgba(30, 90, 60, 0.95) !important;
         font-weight: bold;
     }
     </style>
