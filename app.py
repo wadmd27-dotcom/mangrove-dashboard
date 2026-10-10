@@ -196,15 +196,7 @@ if show_gmw and gmw_data is not None:
             "weight": 2,
             "fillOpacity": 0.9
         },
-        tooltip=folium.GeoJsonTooltip(
-            fields=["region", "source"],
-            aliases=["Region", "Source"],
-            sticky=True
-        ),
-        popup=folium.GeoJsonPopup(
-            fields=["region", "source"],
-            aliases=["Region", "Source"]
-        )
+        
     ).add_to(mangrove_map)
 
 if analysis_data is not None:
