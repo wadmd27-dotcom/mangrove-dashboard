@@ -5,7 +5,7 @@ import folium
 import streamlit as st
 from streamlit_folium import st_folium
 
-
+geojson_path = "images/gmw_uae_extent.geojson"
 st.set_page_config(
     page_title="Mangrove Stress Radar",
     page_icon="🌿",
@@ -74,6 +74,13 @@ gmw_data = None
 if os.path.exists(geojson_path):
     with open(geojson_path, "r") as file:
         gmw_data = json.load(file)
+        analysis_path = "images/mangrove_analysis_points.geojson"
+
+analysis_data = None
+
+if os.path.exists(analysis_path):
+    with open(analysis_path, "r") as file:
+        analysis_data = json.load(file)
 
 
 # -----------------------------
@@ -200,6 +207,48 @@ if show_gmw and gmw_data is not None:
         )
     ).add_to(mangrove_map)
 
+if analysis_data is not None:
+    folium.GeoJson(
+        analysis_data,
+        name="Mangrove analysis points",
+        marker=folium.CircleMarker(
+            radius=5,
+            color="#f2b134",
+            fill=True,
+            fill_color="#f2b134",
+            fill_opacity=0.85
+        ),
+        tooltip=folium.GeoJsonTooltip(
+            fields=[
+                "ndvi",
+                "ndvi_change",
+                "health_score",
+                "change_status"
+            ],
+            aliases=[
+                "NDVI",
+                "NDVI change",
+                "Health score",
+                "Status"
+            ]
+        ),
+        popup=folium.GeoJsonPopup(
+            fields=[
+                "ndvi",
+                "ndvi_change",
+                "health_score",
+                "change_status",
+                "recommended_action"
+            ],
+            aliases=[
+                "NDVI",
+                "NDVI change",
+                "Health score",
+                "Change status",
+                "Recommended action"
+            ]
+        )
+    ).add_to(mangrove_map)
 folium.LatLngPopup().add_to(mangrove_map)
 folium.LayerControl().add_to(mangrove_map)
 
@@ -216,8 +265,61 @@ map_result = st_folium(
 
 # -----------------------------
 # -----------------------------
-# Selected location report
 # -----------------------------
+# Selected analysis point report
+# -----------------------------
+if map_result and map_result.get("last_object_clicked"):
+    clicked_point = map_result["last_object_clicked"]
+    properties = clicked_point.get("properties", {})
+
+    latitude = clicked_point.get("lat")
+    longitude = clicked_point.get("lng")
+
+    st.success(
+        f"Selected point: {latitude:.5f}, {longitude:.5f}"
+    )
+
+    st.markdown(
+        '<div class="section-label">Selected area report</div>',
+        unsafe_allow_html=True
+    )
+
+    report_1, report_2, report_3, report_4 = st.columns(4)
+
+    with report_1:
+        st.metric(
+            "Health score",
+            f"{properties.get('health_score', 'N/A')} / 100"
+        )
+
+    with report_2:
+        st.metric(
+            "NDVI",
+            properties.get("ndvi", "N/A")
+        )
+
+    with report_3:
+        st.metric(
+            "NDVI change",
+            properties.get("ndvi_change", "N/A")
+        )
+
+    with report_4:
+        st.metric(
+            "Change status",
+            properties.get("change_status", "N/A")
+        )
+
+    st.info(
+        f"Recommended action: "
+        f"{properties.get('recommended_action', 'Review in the field.')}"
+    )
+
+else:
+    st.info(
+        "Click an orange analysis point to view location-specific results."
+    )
+    # -----------------------------
 if map_result and map_result.get("last_clicked"):
     selected_location = map_result["last_clicked"]
 
