@@ -39,8 +39,8 @@ This project explores whether satellite-derived vegetation and water indicators 
 ### Planet Tanager hyperspectral data
 
 - Provider: Planet / Microsoft Planetary Computer STAC
-- Collection: \`coastal-water-bodies\`
-- Scene: \`20250223_165546_32_4001\`
+- Collection: `coastal-water-bodies`
+- Scene: `20250223_165546_32_4001`
 - Use: Exploratory hyperspectral spectral inspection and ecological proxies
 - Approximate spectral range: 376–2499 nm
 - Approximate spatial resolution: 32.85 m
@@ -75,7 +75,7 @@ A negative NDVI change is interpreted as a possible stress signal requiring fiel
 
 Requires Python 3.11.
 
-\`\`\`bash
+```bash
 git clone https://github.com/wadmd27-dotcom/mangrove-dashboard.git
 cd mangrove-dashboard
 
@@ -85,7 +85,7 @@ source .venv/bin/activate
 # .venv\Scripts\activate
 
 pip install -r requirements.txt
-\`\`\`
+```
 
 For Linux environments that need GDAL/PROJ system libraries, install the packages listed in [packages.txt](packages.txt) before installing Python dependencies.
 
@@ -95,9 +95,9 @@ For Linux environments that need GDAL/PROJ system libraries, install the package
 
 Open the notebook:
 
-\`\`\`bash
+```bash
 jupyter lab mangrove_stress_radar_memory_safe_fixed.ipynb
-\`\`\`
+```
 
 Run all cells from top to bottom with a fresh kernel. The notebook downloads the documented remote inputs, calculates the indicators, displays the analysis outputs, and writes the exported analysis files.
 
@@ -105,11 +105,11 @@ The first run may take several minutes because it downloads the Global Mangrove 
 
 ### Run the dashboard
 
-\`\`\`bash
+```bash
 streamlit run app.py
-\`\`\`
+```
 
-The dashboard reads the prepared files in \`images/\` and opens locally at \`http://localhost:8501\`.
+The dashboard reads the prepared files in `images/` and opens locally at `http://localhost:8501`.
 
 The deployed proof-of-concept is available at:
 
@@ -165,7 +165,7 @@ Users must follow the terms, licences, and attribution requirements of each data
 
 ## 10. Repository structure
 
-\`\`\`text
+```text
 mangrove-dashboard/
 ├── README.md
 ├── requirements.txt
@@ -182,4 +182,4 @@ mangrove-dashboard/
 │   └── mangrove_bg.jpg
 └── results/
     └── example_output.png
-\`\`\`
+```
