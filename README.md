@@ -1,45 +1,85 @@
 # GCC Mangrove Stress Radar & Blue Carbon Monitor
-# Planet Tanager Hyperspectral Explorer: Ecosystem Health, Biodiversity & Blue Carbon
+
+A proof-of-concept dashboard for detecting possible early mangrove stress and supporting field verification across the GCC.
 
 **Team:** TAIF  
-**Theme:** Ecosystem Health & Biodiversity / Blue Carbon (Arab Youth Space Hackathon: 813 Challenge)  
-**Summary:** A reproducible proof-of-concept pipeline leveraging Planet Tanager hyperspectral satellite data to map coastal blue carbon habitats, monitor mangrove health, and track aquatic biodiversity proxies.
+**Theme:** Ecosystem Health & Biodiversity / Blue Carbon  
+**Challenge:** Arab Youth Space Hackathon — 813 Challenge
 
----
+## 1. Business Use Case
 
-## 1. The Business Use Case
-* **End Users:** Environmental protection agencies, coastal zone managers, marine conservation NGOs, and carbon credit project developers.
-* **Decisions Made:** Prioritizing conservation and restoration sites, verifying blue carbon offset credits, monitoring mangrove stress from industrial runoff or storms, and assessing coastal ecosystem resilience.
-* **Current Alternatives:** Traditional field surveys (costly, slow, limited spatial coverage) or standard multispectral satellites (Landsat, Sentinel-2) which lack the fine spectral resolution needed to detect subtle biochemical changes, species-level stress, or dense aquatic chlorophyll variations.
+The intended users are environmental protection agencies, coastal managers, marine conservation organizations, and blue-carbon project developers.
 
-## 2. The Problem
-Blue carbon ecosystems—including mangroves, seagrass beds, and coastal wetlands—store up to 5 times more carbon per hectare than tropical forests, protect coastlines from storm surges, and serve as vital nursery habitats for marine life. Despite their immense ecological value, these habitats are rapidly degrading due to coastal development, pollution, and climate change. Traditional broad-band satellite data often misclassifies littoral vegetation and fails to capture early-stage ecological stress, making high-resolution hyperspectral monitoring an essential instrument for timely intervention.
+The tool supports decisions such as:
+
+- Prioritizing mangrove conservation and restoration sites
+- Identifying areas requiring field inspection
+- Monitoring possible vegetation stress
+- Supporting blue-carbon monitoring and reporting
+
+Current approaches often depend on expensive field surveys or manually reviewing satellite imagery. This proof of concept provides a faster regional screening tool.
+
+## 2. Problem
+
+Mangroves are important blue-carbon ecosystems that store carbon, protect coastlines, and provide habitat for marine life. They may experience stress from coastal development, pollution, storms, and climate change before visible habitat loss occurs.
+
+This project explores whether satellite-derived vegetation and water indicators can help identify possible emerging stress signals for further field verification.
 
 ## 3. Data Used
-* **Product Name:** Planet Tanager Hyperspectral Surface Reflectance (`coastal-water-bodies` collection via Microsoft Planetary Computer STAC API).
-* **Spectral Resolution:** ~426 contiguous spectral bands spanning from ~376 nm to 2499 nm[cite: 2].
-* **Spatial Resolution:** Ground Sample Distance (GSD) of ~32.85 m[cite: 2].
-* **Quality Bands:** `beta_cloud_mask`, `beta_cirrus_mask`, and `nodata_pixels` for rigorous cloud and artifact masking[cite: 2].
-* **Licence:** Open research and hackathon access via Microsoft Planetary Computer & Planet partnership.
+
+### Sentinel-2 Level-2A
+
+- Provider: Copernicus Data Space / Microsoft Planetary Computer
+- Use: Preliminary NDVI and NDWI comparison
+- Dates: 2024 and 2025 scenes
+- Processing level: Level-2A surface reflectance
+- Bands used: B03, B04, and B08
+- Cloud filtering and scene classification masking are applied
+
+### Planet Tanager Hyperspectral Data
+
+- Collection: `coastal-water-bodies`
+- Provider: Planet / Microsoft Planetary Computer STAC
+- Use: Exploratory hyperspectral indices and spectral inspection
+- Approximate spectral range: 376–2499 nm
+- Approximate spatial resolution: 32.85 m
+- Quality information: cloud, cirrus, and nodata masks
+
+### Global Mangrove Watch 2020
+
+- Use: Reference mangrove extent and spatial mask
+- Dataset year: 2020
+- Use in this project: Constrains the Sentinel-2 analysis to known reference mangrove areas
+
+All indicators are preliminary and require field or UAV validation.
 
 ## 4. Technical Approach
-The analysis workflow executes in the following ordered steps:
-1. **STAC Discovery & Authentication:** Connects securely to the Planet STAC API using `pystac-client` and `planetary-computer` signed assets[cite: 2].
-2. **Data Ingestion & Cleansing:** Loads the HDF5 surface reflectance asset (`ortho_sr_hdf5`) using `stackstac` and `rasterio`, filtering out invalid pixels, cloud artifacts, and negative reflectance values into `np.nan`[cite: 2].
-3. **Band Extraction & Index Computation:** Extracts critical wavelengths (443 nm, 560 nm, 665 nm, 708 nm, 800 nm, 860 nm)[cite: 2] to compute specialized ecological indices with mathematical safeguards (`eps = 1e-6` to prevent division-by-zero errors)[cite: 2]:
-   * **NDVI:** General vegetation health and vigor[cite: 2].
-   * **NDWI:** Open water body delineation[cite: 2].
-   * **NDCI (Normalized Difference Chlorophyll Index):** Algal bloom and aquatic vegetation density[cite: 2].
-   * **Turbidity Proxy:** Suspended sediment dynamics in coastal waters[cite: 2].
-   * **Mangrove Proxy:** Multi-threshold mask combining NDVI, NDWI, and NDCI signatures to isolate blue carbon habitats[cite: 2].
+
+The workflow:
+
+1. Searches Sentinel-2 Level-2A imagery using STAC.
+2. Selects comparable scenes from 2024 and 2025.
+3. Uses the same Sentinel-2 tile and shared spatial grid.
+4. Applies cloud, shadow, cirrus, and invalid-pixel masking.
+5. Calculates NDVI and NDWI.
+6. Reprojects the Global Mangrove Watch 2020 layer onto the Sentinel-2 grid.
+7. Calculates change only within reference mangrove pixels.
+8. Exports summary statistics and GeoJSON points for the dashboard.
+9. Displays the results through a Streamlit/Folium dashboard.
+
+The NDVI change is interpreted as a possible stress signal. It is not a confirmed ecological health classification.
 
 ## 5. Installation
 
-Requires **Python 3.11**.
+Requires Python 3.11.
 
 ```bash
-git clone [https://github.com/your-team/planet-tanager-blue-carbon.git](https://github.com/your-team/planet-tanager-blue-carbon.git)
-cd planet-tanager-blue-carbon
+git clone https://github.com/wadmd27-dotcom/mangrove-dashboard.git
+cd mangrove-dashboard
+
 python -m venv .venv
-source .venv/bin/activate  # On Windows use: .venv\Scripts\activate
+source .venv/bin/activate
+# Windows:
+# .venv\Scripts\activate
+
 pip install -r requirements.txt
