@@ -1,0 +1,2 @@
+country,tile,baseline_date,later_date,baseline_median_ndvi,later_median_ndvi,median_ndvi_change,strong_decrease_percent,strong_increase_percent,valid_mangrove_pixels,status
+United Arab Emirates,40RBN,2024-02-22,2025-02-04,0.29361238901399866,0.30708567396672914,0.0062359781681731955,1.9607843137254901,9.52645209027007,5406,Preliminary NDVI indicator — field verification required
