@@ -83,3 +83,11 @@ source .venv/bin/activate
 # .venv\Scripts\activate
 
 pip install -r requirements.txt
+
+## Reproducibility Files
+
+- [Analysis notebook](mangrove_stress_radar_memory_safe_fixed.ipynb)
+- [Sample input documentation](data/sample_input/README.md)
+- [Example output](results/example_output.png)
+
+Run the notebook from top to bottom. It uses fixed Sentinel-2 scene IDs and downloads the required remote data automatically.
