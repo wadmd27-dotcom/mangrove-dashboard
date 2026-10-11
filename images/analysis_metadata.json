@@ -1,0 +1,7 @@
+{
+  "reference_layer": "Global Mangrove Watch 2020",
+  "monitoring_source": "Sentinel-2 L2A",
+  "hyperspectral_source": "Planet Tanager",
+  "comparison": "February\u2013March 2024 vs February\u2013March 2025",
+  "qualification": "Preliminary indicator; not a validated health classification; field verification required."
+}
