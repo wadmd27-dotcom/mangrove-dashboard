@@ -87,7 +87,17 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-For Linux environments that need GDAL/PROJ system libraries, install the packages listed in [packages.txt](packages.txt) before installing Python dependencies.
+The root `requirements.txt` contains only the lightweight dashboard dependencies required by Streamlit.
+
+For local notebook execution, install the additional pinned analysis dependencies:
+
+```bash
+pip install -r requirements-notebook.txt
+```
+
+The notebook also installs its analysis dependencies in its first cell when run in Colab. The Streamlit deployment does not install the notebook-only geospatial and hyperspectral packages.
+
+For Linux environments that need GDAL/PROJ system libraries for notebook execution, install the packages listed in [packages.txt](packages.txt) before installing `requirements-notebook.txt`.
 
 ## 6. How to run
 
@@ -169,6 +179,7 @@ Users must follow the terms, licences, and attribution requirements of each data
 mangrove-dashboard/
 ├── README.md
 ├── requirements.txt
+├── requirements-notebook.txt
 ├── packages.txt
 ├── app.py
 ├── mangrove_stress_radar_memory_safe_fixed.ipynb
