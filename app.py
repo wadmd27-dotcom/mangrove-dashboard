@@ -19,17 +19,11 @@ st.set_page_config(
 # Paths
 # ---------------------------------------------------------
 
-BG_IMAGE_PATH = Path(
-    "images/mangrove_bg.jpg"
-)
+BASE_DIR = Path(__file__).resolve().parent
 
-GEOJSON_PATH = Path(
-    "images/gcc_mangrove_analysis_points.geojson"
-)
-
-UAE_INDICES_PATH = Path(
-    "images/uae_indices_summary.json"
-)
+BG_IMAGE_PATH = BASE_DIR / "images" / "mangrove_bg.jpg"
+GEOJSON_PATH = BASE_DIR / "images" / "gcc_mangrove_analysis_points.geojson"
+UAE_INDICES_PATH = BASE_DIR / "images" / "uae_indices_summary.json"
 
 
 # ---------------------------------------------------------
@@ -682,9 +676,18 @@ with tab1:
 
                     if selected_country == "UAE":
 
+                        pixel_level_available = uae_indices.get(
+                            "pixel_level_change_available",
+                            False
+                        )
+
                         st.write(
                             "• **Pixel-level change:** "
-                            "Not available for this scene pair"
+                            + (
+                                "Available in exported dashboard points"
+                                if pixel_level_available
+                                else "Not available for this scene pair"
+                            )
                         )
 
                     else:
