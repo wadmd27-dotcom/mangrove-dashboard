@@ -1,20 +1,20 @@
 {
   "status": "Preliminary scene-level indicator",
-  "baseline_date": "2024-03-06",
-  "later_date": "2025-02-11",
-  "common_tile": "40QDL",
+  "baseline_date": "2024-02-22",
+  "later_date": "2025-02-04",
+  "common_tile": "40RBN",
   "ndvi": {
-    "baseline_median": -0.01592767983675003,
-    "later_median": 0.07833079248666763,
-    "scene_level_change": 0.09425847232341766,
-    "interpretation": "Preliminary increase between scenes"
+    "baseline_median": 0.29361238901399866,
+    "later_median": 0.30708567396672914,
+    "scene_level_change": 0.0062359781681731955,
+    "interpretation": "Preliminary scene-level indicator"
   },
   "ndwi": {
-    "baseline_median": 0.09262166172266006,
-    "later_median": -0.2516843378543854,
-    "scene_level_change": -0.34430599957704544,
-    "interpretation": "Preliminary decrease between scenes"
+    "baseline_median": 0.2565,
+    "later_median": 0.287613,
+    "scene_level_change": 0.013482,
+    "interpretation": "Preliminary scene-level indicator"
   },
-  "pixel_level_change_available": false,
-  "notes": "Values are scene-level medians from the same Sentinel-2 tile. Field validation and spatial masking are required."
+  "pixel_level_change_available": true,
+  "notes": "Values are calculated inside the Global Mangrove Watch 2020 reference mask. Field validation is required."
 }
